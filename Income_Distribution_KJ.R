@@ -101,7 +101,7 @@ colnames(Income_Data) <- c("Income","APC_Value","Old_Tax","New_Tax")
 Income_Data$Consume <- Income_Data$Income * Income_Data$APC_Value /100
 Income_Data$PreTaxChange <- Income_Data$Consume * Income_Data$Old_Tax/100
 Income_Data$PostTaxChange <- Income_Data$Consume * Income_Data$New_Tax/100
-Income_Data$DisposableInc <- Income_Data$Income - Income_Data$PostTaxChange
+Income_Data$RemainingInc <- Income_Data$Income - Income_Data$PostTaxChange
 
 colnames(Income_Data) <- c("Income","APC_Value","Old_Tax","New_Tax","Consumption_Expenditure","Tax_Amount(Pre)","Tax_Amount(Post)","Remaining_Balance")
 Income_Data <- Income_Data[c("Income","APC_Value", "Consumption_Expenditure", "Old_Tax","New_Tax","Tax_Amount(Pre)","Tax_Amount(Post)", "Remaining_Balance")]
