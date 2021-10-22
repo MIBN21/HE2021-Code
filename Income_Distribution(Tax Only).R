@@ -99,14 +99,15 @@ colnames(Income_Data) <- c("Income","APC_Value","Old_Tax","New_Tax")
 Income_Data$Consume <- Income_Data$Income * Income_Data$APC_Value /100
 Income_Data$PreTaxChange <- Income_Data$Consume * Income_Data$Old_Tax/100
 Income_Data$PostTaxChange <- Income_Data$Consume * Income_Data$New_Tax/100
-Income_Data$RemainingInc <- Income_Data$Income - Income_Data$PostTaxChange
+Income_Data$RemainingInc1 <- Income_Data$Income - Income_Data$PreTaxChange
+Income_Data$RemainingInc2 <- Income_Data$Income - Income_Data$PostTaxChange
 
 # poverty_line_income <- 2000000
 # Income_Data$Income_With_Poverty_Line <- ifelse(Income_Data$RemainingInc >= poverty_line_income, "Above", "Below")
 
 colnames(Income_Data) <- c("Income","APC_Value","Old_Tax","New_Tax","Consumption_Expenditure",
-                           "Consumption_Tax_Amount(Pre)","Consumption_Tax_Amount(Post)",
-                           "Remaining_Balance_After_Tax")#,"Check_with_Poverty_Line")
+                           "Consumption_Tax_Amount(Pre)","Consumption_Tax_Amount(Post)","Remaining_Balance_Before_TaxChange",
+                           "Remaining_Balance_After_TaxChange")#,"Check_with_Poverty_Line")
 
 Income_Data_Tax=Income_Data
 
@@ -178,11 +179,10 @@ Newgini<-c(round(ineq(Income_Data$Remaining_Balance, type="Gini"),6),"-","-","-"
 # Part E
 ##Assume poverty line is 2000000 yen, source: https://www.economist.com/asia/2015/04/04/struggling 
 poverty_line_income = 2000000
-AboveLinePre<-Income_Data_Tax[!Income_Data_Tax$Income <= poverty_line_income,]
-AboveLinePost<-Income_Data_Tax[!Income_Data_Tax$RemainingInc <= poverty_line_income,]
-
-Prepercent=length(AboveLinePre)/length(Income_Data$Income)
-Postpercent=length(AboveLinePost)/length(Income_Data$RemainingInc)
+AboveLinePre<-Income_Data_Tax[!Income_Data_Tax$Remaining_Balance_Before_TaxChange <= poverty_line_income,]
+AboveLinePost<-Income_Data_Tax[!Income_Data_Tax$Remaining_Balance_After_Tax <= poverty_line_income,]
+Prepercent=nrow(AboveLinePre)/length(Income_Data$Remaining_Balance_Before_TaxChange)
+Postpercent=nrow(AboveLinePost)/length(Income_Data$Remaining_Balance_After_Tax)
 
 Prepercent<-c(Prepercent,"-","-","-","-","-")
 Postpercent<-c(Postpercent,"-","-","-","-","-")

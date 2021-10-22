@@ -70,7 +70,7 @@ Income_Data_with_Redistributive <- data.frame(Income_Data_with_Redistributive)
 colnames(Income_Data_with_Redistributive) <- c("Income")
 
 Income_Data_Total<-cbind(Income_Data,Income_Data_with_Redistributive)
-colnames(Income_Data_Total) <- c("Income","Post-Policy-Income")
+colnames(Income_Data_Total) <- c("Income","Post_Policy_Income")
 
 Income_Data_Red=Income_Data_Total
 View(Income_Data_Red)
@@ -84,7 +84,7 @@ if(Remaining_people>=length(income_1)){
   Government_Spending_Q1 = length(income_1)*30000
   Remaining_people=Remaining_people-length(income_1)
 } else if (Remaining_people>0){
-
+  
   Government_Spending_Q1 = Remaining_people*30000
   Remaining_people=0
 }else{
@@ -159,11 +159,10 @@ Benefits<-c(BenefitTotal,BenefitQ1,BenefitQ2,BenefitQ3,BenefitQ4,BenefitQ5)
 #Part E
 ##Assume poverty line is 2000000 yen, source: https://www.economist.com/asia/2015/04/04/struggling 
 poverty_line_income = 2000000
-AboveLinePre<-Income_Data[!Income_Data$Income <= poverty_line_income,]
-AboveLinePost<-Income_Data_with_Redistributive[!Income_Data_with_Redistributive$Income <= poverty_line_income,]
-
-Prepercent=length(AboveLinePre)/length(Income_Data$Income)
-Postpercent=length(AboveLinePost)/length(Income_Data_with_Redistributive$Income)
+AboveLinePre<-Income_Data_Total[!Income_Data_Total$Income <= poverty_line_income,]
+AboveLinePost<-Income_Data_Total[!Income_Data_Total$Post_Policy_Income <= poverty_line_income,]
+Prepercent=nrow(AboveLinePre)/length(Income_Data_Total$Income)
+Postpercent=nrow(AboveLinePost)/length(Income_Data_Total$Post_Policy_Income)
 
 Prepercent<-c(Prepercent,"-","-","-","-","-")
 Postpercent<-c(Postpercent,"-","-","-","-","-")

@@ -49,23 +49,6 @@ summary(income_4)
 summary(income_5)
 ###Your own analysis starts####
 
-## Orginial Income Data
-Income_Data <- data.frame(income.vec)
-colnames(Income_Data) <- c("Income")
-Income_Data <- data.frame(Income_Data[order(Income_Data$Income),])
-Sole_IncomeData=Income_Data
-colnames(Sole_IncomeData) <- c("Income")
-#View(Income_Data)
-
-##Miscellaneous
-# elements of each quintile
-length(income)
-length(income_1)
-length(income_2)
-length(income_3)
-length(income_4)
-length(income_5)
-
 ##Average consumption expenditure of each quintile per capita (big assumptions made here)
 #https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
 Q1 = 137856*12/Averagenuminhouse
@@ -85,6 +68,26 @@ APC5 = (Q5/summary(income_5)[4])*100
 #MeanAPC = (APC1+ APC2+APC3+ APC4 + APC5)/5
 #print(MeanAPC) (71.18 Very good considering there are assum,ptions in our data made)
 
+Income_Data <- data.frame(income.vec)
+colnames(Income_Data) <- c("Income")
+Income_Data <- data.frame(Income_Data[order(Income_Data$Income),])
+
+Income_Data_recieved_voucher<-Income_Data[!Income_Data$Income>2560000,]+30000
+AmountofVouchers<-length(Income_Data_recieved_voucher)
+
+Income_Data_recieved_voucher<- data.frame(Income_Data_recieved_voucher)
+Income_Data_DNrecieved_voucher<-Income_Data[!Income_Data$Income<=2560000,]
+Income_Data_DNrecieved_voucher <- data.frame(Income_Data_DNrecieved_voucher)
+colnames(Income_Data_recieved_voucher) <- c("Income")
+colnames(Income_Data_DNrecieved_voucher) <- c("Income")
+
+Income_Data_with_Redistributive<-rbind(Income_Data_recieved_voucher,Income_Data_DNrecieved_voucher)
+Income_Data_with_Redistributive <- data.frame(Income_Data_with_Redistributive)
+colnames(Income_Data_with_Redistributive) <- c("Income")
+
+Income_Data_Total<-cbind(Income_Data,Income_Data_with_Redistributive)
+colnames(Income_Data_Total) <- c("Income","Post-Policy-Income")
+
 ##Tax rate columns
 Old_Tax_Rate<-seq(from = 8.0, to = 8.0, length.out = 10000000)
 Old_Tax_Rate<-data.frame(Old_Tax_Rate)
@@ -100,119 +103,158 @@ ClmAPC5<-seq(from = APC5, to = APC5, length.out = length(income_5))
 ClmAPC = c(ClmAPC1,ClmAPC2,ClmAPC3,ClmAPC4,ClmAPC5)
 ClmAPC<-data.frame(ClmAPC)
 
-Income_Data<-cbind(Income_Data, ClmAPC, Old_Tax_Rate,New_Tax_Rate)
-colnames(Income_Data) <- c("Income","APC_Value","Old_Tax","New_Tax")
-Income_Data$Consume <- Income_Data$Income * Income_Data$APC_Value /100
-Income_Data$PreTaxChange <- Income_Data$Consume * Income_Data$Old_Tax/100
-Income_Data$PostTaxChange <- Income_Data$Consume * Income_Data$New_Tax/100
-Income_Data$RemainingInc <- Income_Data$Income - Income_Data$PostTaxChange
-colnames(Income_Data) <- c("Income","APC_Value","Old_Tax","New_Tax","Consumption_Expenditure","Consumption_Tax_Amount(Pre)","Consumption_Tax_Amount(Post)","Remaining_Balance")
-Income_Data_without_redistributive <-Income_Data
-View(Income_Data_without_redistributive)
+# Prepare and generate dataframe to analyse the income values
+Income_Data_Total<-cbind(Income_Data_Total, ClmAPC, Old_Tax_Rate, New_Tax_Rate)
+colnames(Income_Data_Total) <- c("Income","New_Income_with_Red","APC_Value","Old_Tax" ,"New_Tax")
+Income_Data_Total$Pre_Consume_Expenditure <- Income_Data_Total$Income * Income_Data_Total$APC_Value /100
+Income_Data_Total$Post_Consume_Expenditure <- Income_Data_Total$New_Income_with_Red * Income_Data_Total$APC_Value /100
+Income_Data_Total$Pre_Policy_Tax_Amount <- Income_Data_Total$Pre_Consume_Expenditure * Income_Data_Total$Old_Tax/100
+Income_Data_Total$Post_Policy_Tax_Amount <- Income_Data_Total$Post_Consume_Expenditure * Income_Data_Total$New_Tax/100
+Income_Data_Total$RemainingInc_Pre <- Income_Data_Total$Income - Income_Data_Total$Pre_Policy_Tax_Amount
+Income_Data_Total$RemainingInc_Post <- Income_Data_Total$New_Income_with_Red - Income_Data_Total$Post_Policy_Tax_Amount
+View(Income_Data_Total)
 
-###Pre/Post Tax Gini
+###Summary Statistics
+
+###Part A
+##Gini
 Originalgini<-c(round(ineq(income.vec, type="Gini"),6),"-","-","-","-","-")
-Newgini<-c(round(ineq(Income_Data_without_redistributive$Remaining_Balance, type="Gini"),6),"-","-","-","-","-")
+Newgini<-c(round(ineq(Income_Data_Total$RemainingInc_Post, type="Gini"),6),"-","-","-","-","-")
 
-###Calculations
-PretaxQ1=sum(Income_Data[1:length(income_1),6])
-PretaxQ2=sum(Income_Data[(length(income_1)+1):length(income_2),6])
-PretaxQ3=sum(Income_Data[(length(income_2)+1):length(income_3),6])
-PretaxQ4=sum(Income_Data[(length(income_3)+1):length(income_4),6])
-PretaxQ5=sum(Income_Data[(length(income_4)+1):length(income),6])
-PretaxTot=sum(Income_Data[,6])
+### Part B and C
+#calculate Government SPending Pre and Post
+##Pre
 
-PosttaxQ1=sum(Income_Data[1:length(income_1),7])
-PosttaxQ2=sum(Income_Data[(length(income_1)+1):length(income_2),7])
-PosttaxQ3=sum(Income_Data[(length(income_2)+1):length(income_3),7])
-PosttaxQ4=sum(Income_Data[(length(income_3)+1):length(income_4),7])
-PosttaxQ5=sum(Income_Data[(length(income_4)+1):length(income),7])
-PosttaxTot=sum(Income_Data[,7])
+Governmentspend_Pre = c(0,0,0,0,0,0)
+Governmentspend_Pre<-data.frame(Governmentspend_Pre)
+##Post
 
-IncomeQ1=sum(Income_Data[1:length(income_1),1])
-IncomeQ2=sum(Income_Data[(length(income_1)+1):length(income_2),1])
-IncomeQ3=sum(Income_Data[(length(income_2)+1):length(income_3),1])
-IncomeQ4=sum(Income_Data[(length(income_3)+1):length(income_4),1])
-IncomeQ5=sum(Income_Data[(length(income_4)+1):length(income),1])
-IncomeTot=sum(Income_Data[,1])
+Remaining_people<-AmountofVouchers
+Government_Spending_Total =Remaining_people*30000
 
-AveragepretaxQ1= PretaxQ1/IncomeQ1 *100
-AveragepretaxQ2= PretaxQ2/IncomeQ2 *100
-AveragepretaxQ3= PretaxQ3/IncomeQ3 *100
-AveragepretaxQ4= PretaxQ4/IncomeQ4 *100
-AveragepretaxQ5= PretaxQ5/IncomeQ5 *100
-AveragepretaxTot= PretaxTot/IncomeTot *100
+if(Remaining_people>=length(income_1)){
+  Government_Spending_Q1 = length(income_1)*30000
+  Remaining_people=Remaining_people-length(income_1)
+} else if (Remaining_people>0){
+  
+  Government_Spending_Q1 = Remaining_people*30000
+  Remaining_people=0
+}else{
+  Government_Spending_Q1 =0
+}
 
-AverageposttaxQ1= PosttaxQ1/IncomeQ1 *100
-AverageposttaxQ2= PosttaxQ2/IncomeQ2 *100
-AverageposttaxQ3= PosttaxQ3/IncomeQ3 *100
-AverageposttaxQ4= PosttaxQ4/IncomeQ4 *100
-AverageposttaxQ5= PosttaxQ5/IncomeQ5 *100
-AverageposttaxTot= PosttaxTot/IncomeTot *100
+if(Remaining_people>=length(income_2)){
+  Government_Spending_Q2 = length(income_2)*30000
+  Remaining_people=Remaining_people-length(income_2)
+}else if (Remaining_people>0){
+  Government_Spending_Q2 = Remaining_people*30000
+  Remaining_people=0
+}else{
+  Government_Spending_Q2 =0
+}
 
-Changeinrev1=(PosttaxQ1-PretaxQ1)/PretaxQ1*100
-Changeinrev2=(PosttaxQ2-PretaxQ2)/PretaxQ2*100
-Changeinrev3=(PosttaxQ3-PretaxQ3)/PretaxQ3*100
-Changeinrev4=(PosttaxQ4-PretaxQ4)/PretaxQ4*100
-Changeinrev5=(PosttaxQ5-PretaxQ5)/PretaxQ5*100
-ChangeinrevTot=(AverageposttaxTot-AveragepretaxTot)/AveragepretaxTot*100
+if(Remaining_people>=length(income_3)){
+  Government_Spending_Q3 = length(income_3)*30000
+  Remaining_people=Remaining_people-length(income_3)
+}else if (Remaining_people>0){
+  Government_Spending_Q3 = Remaining_people*30000
+  Remaining_people=0
+}else{
+  Government_Spending_Q3 =0
+}
 
-IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
+if(Remaining_people>=length(income_4)){
+  Government_Spending_Q4 = length(income_4)*30000
+  Remaining_people=Remaining_people-length(income_4)
+}else if (Remaining_people>0){
+  Government_Spending_Q4 = Remaining_people*30000
+  Remaining_people=0
+}else{
+  Government_Spending_Q4 =0
+}
+
+if(Remaining_people>=length(income_5)){
+  Government_Spending_Q5 = length(income_5)*30000
+  Remaining_people=Remaining_people-length(income_5)
+}else if (Remaining_people>0){
+  Government_Spending_Q5 = Remaining_people*30000
+  Remaining_people=0
+}else{
+  Government_Spending_Q5 =0
+}
+
+Governmentspend_Post<-c(Government_Spending_Total,Government_Spending_Q1,Government_Spending_Q2,
+                   Government_Spending_Q3,Government_Spending_Q4,Government_Spending_Q5)
+
+#calculate Government Revenue from Tax
+
+# Tax amount before policy
+PretaxQ1=sum(Income_Data_Total[1:length(income_1),8])
+PretaxQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),8])
+PretaxQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),8])
+PretaxQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),8])
+PretaxQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),8])
+PretaxTot=sum(Income_Data_Total[,8])
 AmPretax<-c(PretaxTot,PretaxQ1,PretaxQ2,PretaxQ3,PretaxQ4,PretaxQ5)
+# Tax amount after policy
+PosttaxQ1=sum(Income_Data_Total[1:length(income_1),9])
+PosttaxQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),9])
+PosttaxQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),9])
+PosttaxQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),9])
+PosttaxQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),9])
+PosttaxTot=sum(Income_Data_Total[,9])
 AmPosttax<-c(PosttaxTot,PosttaxQ1,PosttaxQ2,PosttaxQ3,PosttaxQ4,PosttaxQ5)
-AveragePretax<-c(AveragepretaxTot,AveragepretaxQ1,AveragepretaxQ2,AveragepretaxQ3,AveragepretaxQ4,AveragepretaxQ5)
-AveragePosttax<-c(AverageposttaxTot,AverageposttaxQ1, AverageposttaxQ2, AverageposttaxQ3,AverageposttaxQ4,AverageposttaxQ5)
-Changeinrev<-c(ChangeinrevTot,Changeinrev1,Changeinrev2,Changeinrev3,Changeinrev4,Changeinrev5)
-Summary_statistics<-data.frame(IncomeQuintile,Originalgini,Newgini, AmPretax, AmPosttax, AveragePretax,AveragePosttax,Changeinrev)
-colnames(Summary_statistics) <- c("Income_Bracket","Pre_Tax_Gini","Post_Tax_Gini","AmountCollected_PreTaxChange","AmountCollected_PostTaxChange", "EffectiveAveragePreTaxRate", "EffectiveAveragePostTaxRate","PercentageChange_TaxCollected(Pre vs Post)")
-View(Summary_statistics)
+
+NetChangeGovPre<-AmPretax -Governmentspend_Pre
+NetChangeGovPost<-AmPosttax -Governmentspend_Post
+NetChangeGovPre<-data.frame(NetChangeGovPre)
+NetChangeGovPost<-data.frame(NetChangeGovPost)
+###Part D
+PreIncomeQ1=sum(Income_Data_Total[1:length(income_1),1])
+PreIncomeQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),1])
+PreIncomeQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),1])
+PreIncomeQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),1])
+PreIncomeQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),1])
+PreIncomeTot=sum(Income_Data_Total[,1])
+
+PreNetBenefitQ1 = NetChangeGovPre[2,]/PreIncomeQ1*100
+PreNetBenefitQ2 = NetChangeGovPre[3,]/PreIncomeQ2*100
+PreNetBenefitQ3 = NetChangeGovPre[4,]/PreIncomeQ3*100
+PreNetBenefitQ4 = NetChangeGovPre[5,]/PreIncomeQ4*100
+PreNetBenefitQ5 = NetChangeGovPre[6,]/PreIncomeQ5*100
+PreNetBenefitTotal =NetChangeGovPre[1,]/PreIncomeTot*100
+
+PostIncomeQ1=sum(Income_Data_Total[1:length(income_1),2])
+PostIncomeQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),2])
+PostIncomeQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),2])
+PostIncomeQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),2])
+PostIncomeQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),2])
+PostIncomeTot=sum(Income_Data_Total[,2])
+
+PostNetBenefitQ1 = NetChangeGovPost[2,]/PostIncomeQ1*100
+PostNetBenefitQ2 = NetChangeGovPost[3,]/PostIncomeQ2*100
+PostNetBenefitQ3 = NetChangeGovPost[4,]/PostIncomeQ3*100
+PostNetBenefitQ4 = NetChangeGovPost[5,]/PostIncomeQ4*100
+PostNetBenefitQ5 = NetChangeGovPost[6,]/PostIncomeQ5*100
+PostNetBenefitTotal =NetChangeGovPost[1,]/PostIncomeTot*100
+
+PreNetBenefit<-c(PreNetBenefitTotal,PreNetBenefitQ1,PreNetBenefitQ2,PreNetBenefitQ3,PreNetBenefitQ4,PreNetBenefitQ5)
+PostNetBenefit<-c(PostNetBenefitTotal,PostNetBenefitQ1,PostNetBenefitQ2,PostNetBenefitQ3,PostNetBenefitQ4,PostNetBenefitQ5)
 
 
-####Combined
+###Part E
+##Proportion of population against poverty line
+poverty_line_income = 2000000
+AboveLinePre<-Income_Data_Total[!Income_Data_Total$RemainingInc_Pre <= poverty_line_income,]
+AboveLinePost<-Income_Data_Total[!Income_Data_Total$RemainingInc_Post <= poverty_line_income,]
+Prepercent=nrow(AboveLinePre)/length(Income_Data_Total$RemainingInc_Pre)
+Postpercent=nrow(AboveLinePost)/length(Income_Data_Total$RemainingInc_Post)
+Prepercent<-c(Prepercent,"-","-","-","-","-")
+Postpercent<-c(Postpercent,"-","-","-","-","-")
+IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 
-#Income_threshold_for_recipient == 2560000
-Income_Data_with_redistributive1<-Sole_IncomeData[!Sole_IncomeData$Income>2560000,]+30000
-Income_Data_with_redistributive1<- data.frame(Income_Data_with_redistributive1)
-Income_Data_with_redistributive2<-Sole_IncomeData[!Sole_IncomeData$Income<=2560000,]
-Income_Data_with_redistributive2 <- data.frame(Income_Data_with_redistributive2)
-colnames(Income_Data_with_redistributive1) <- c("Income")
-colnames(Income_Data_with_redistributive2) <- c("Income")
-Income_Data_with_redistributive<-rbind(Income_Data_with_redistributive1,Income_Data_with_redistributive2)
-Income_Data_with_redistributive<-cbind(Income_Data_with_redistributive, ClmAPC, New_Tax_Rate)
-Income_Data_with_redistributive<-data.frame(Income_Data_with_redistributive)
-colnames(Income_Data_with_redistributive) <- c("Income","APC_Value","New_Tax")
-Income_Data_with_redistributive$Consume <- (Income_Data_with_redistributive$Income * Income_Data_with_redistributive$APC_Value) /100
-Income_Data_with_redistributive$PostTaxChange <- Income_Data_with_redistributive$Consume * Income_Data_with_redistributive$New_Tax/100
-Income_Data_with_redistributive$RemainingInc <- Income_Data_with_redistributive$Income - Income_Data_with_redistributive$PostTaxChange
-## Only included post tax change cause the policy itself is done post tax change, would make much sense to include pre tax
-colnames(Income_Data_with_redistributive) <- c("New_Income","APC_Value","New_Tax","New_Consumption_Expenditure","Consumption_Tax_Amount(Post-change)","New_Remaining_Balance")
-View(Income_Data_with_redistributive)
-
-Newgini2<-c(round(ineq(Income_Data_with_redistributive$New_Remaining_Balance, type="Gini"),6),"-","-","-","-","-")
-
-
-PosttaxRedQ1=sum(Income_Data_with_redistributive[1:length(income_1),5])
-PosttaxRedQ2=sum(Income_Data_with_redistributive[(length(income_1)+1):length(income_2),5])
-PosttaxRedQ3=sum(Income_Data_with_redistributive[(length(income_2)+1):length(income_3),5])
-PosttaxRedQ4=sum(Income_Data_with_redistributive[(length(income_3)+1):length(income_4),5])
-PosttaxRedQ5=sum(Income_Data_with_redistributive[(length(income_4)+1):length(income),5])
-PosttaxRedTot=sum(Income_Data_with_redistributive[,5])
-
-RedIncomeQ1=sum(Income_Data_with_redistributive[1:length(income_1),1])
-RedIncomeQ2=sum(Income_Data_with_redistributive[(length(income_1)+1):length(income_2),1])
-RedIncomeQ3=sum(Income_Data_with_redistributive[(length(income_2)+1):length(income_3),1])
-RedIncomeQ4=sum(Income_Data_with_redistributive[(length(income_3)+1):length(income_4),1])
-RedIncomeQ5=sum(Income_Data_with_redistributive[(length(income_4)+1):length(income),1])
-RedIncomeTot=sum(Income_Data_with_redistributive[,1])
-
-AveragepostRedtaxQ1= PosttaxRedQ1/RedIncomeQ1 *100
-AveragepostRedtaxQ2= PosttaxRedQ2/RedIncomeQ2 *100
-AveragepostRedtaxQ3= PosttaxRedQ3/RedIncomeQ3 *100
-AveragepostRedtaxQ4= PosttaxRedQ4/RedIncomeQ4 *100
-AveragepostRedtaxQ5= PosttaxRedQ5/RedIncomeQ5 *100
-AveragepostRedtaxTot= PosttaxRedTot/RedIncomeTot *100
-AveragePostRedtax<-c(AveragepostRedtaxTot,AveragepostRedtaxQ1,AveragepostRedtaxQ2,AveragepostRedtaxQ3,AveragepostRedtaxQ4,AveragepostRedtaxQ5)
-Summary_statistics2<-data.frame(IncomeQuintile,Originalgini,Newgini,Newgini2, AmPretax, AmPosttax, AveragePretax,AveragePosttax,Changeinrev,AveragePostRedtax)
-
-colnames(Summary_statistics2) <- c("Income_Bracket","Pre_Tax_Gini","Post_Tax_Gini","New_Gini_WRed","AmountCollected_PreTaxChange","AmountCollected_PostTaxChange", "EffectiveAveragePreTaxRate", "EffectiveAveragePostTaxRate","PercentageChange_TaxCollected(Pre vs Post)","EffectiveAveragePostRedTaxRate")
-View(Summary_statistics2)
+Summary_statistics_Both<-data.frame(IncomeQuintile, Originalgini, Newgini,Governmentspend_Pre,Governmentspend_Post,AmPretax,AmPosttax,NetChangeGovPre,NetChangeGovPost,PreNetBenefit,PostNetBenefit,Prepercent,Postpercent)
+colnames(Summary_statistics_Both) <- c("Income_Bracket","Old_Gini","Post_Policy_Gini","Government_Expenditure_Pre","Government_Expenditure_Post","Government_Revenue_Pre","Government_Revenue_Post","NetChangeGovPre","NetChangeGovPost",
+                                      "PreNetBenefit","PostNetBenefit","Proportion_above_Poverty_Line(Pre)",
+                                      "Proportion_above_Poverty_Line(Post)")
+View(Summary_statistics_Both)
