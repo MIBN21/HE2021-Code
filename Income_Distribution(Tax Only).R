@@ -12,15 +12,15 @@ library(stringr)
 #Income thresholds from data (per annum per capita in yen)
 
 #Average income per household/average number of people in a household
-Averagenuminhouse= (1.27+1.91+2.29+2.89+3.27)/5
+Averageearninhouse= (0.32+0.62+	1.04+	1.52	+1.88)/5
 
 #Average yearly income quintile per household/average number of people in a household
 #to obtain average yearly income quintile per capita.
 
-inc_1 <- 2320000/Averagenuminhouse #Lowest Income Quintile
-inc_2 <- 3540000/Averagenuminhouse #Second Quintile
-inc_3 <- 4990000/Averagenuminhouse #Third quintile
-inc_4 <- 7380000/Averagenuminhouse #Fourth Quintile
+inc_1 <- 2320000/Averageearninhouse #Lowest Income Quintile
+inc_2 <- 3540000/Averageearninhouse #Second Quintile
+inc_3 <- 4990000/Averageearninhouse #Third quintile
+inc_4 <- 7380000/Averageearninhouse #Fourth Quintile
 #above is per person in household
 
 ave_income <- 2849000 # https://www.ceicdata.com/datapage/charts/ipc_japan_annual-household-income-per-capita/?type=area&from=2009-12-01&to=2020-12-01&lang=en
@@ -49,6 +49,11 @@ summary(income_3)
 summary(income_4)
 summary(income_5)
 
+length(income_1)
+length(income_2)
+length(income_3)
+length(income_4)
+length(income_5)
 ###Your own analysis starts####
 
 ## Orginial Income Data
@@ -61,11 +66,11 @@ Income_Data <- data.frame(Income_Data[order(Income_Data$Income),])
 
 ##Average consumption expenditure of each quintile per capita (big assumptions made here)
 #https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
-Q1 = 137856*12/Averagenuminhouse
-Q2 = 192473*12/Averagenuminhouse
-Q3 = 237683*12/Averagenuminhouse
-Q4 = 282792*12/Averagenuminhouse
-Q5 = 381189*12/Averagenuminhouse
+Q1 = 137856*12/Averageearninhouse
+Q2 = 192473*12/Averageearninhouse
+Q3 = 237683*12/Averageearninhouse
+Q4 = 282792*12/Averageearninhouse
+Q5 = 381189*12/Averageearninhouse
 
 ##Average APC of each quintile (big assumptions made here)
 ###PROB need to change because APC1 is suppose to be above 100%
@@ -174,7 +179,7 @@ AveragePretax<-c(AveragepretaxTot,AveragepretaxQ1,AveragepretaxQ2,AveragepretaxQ
 AveragePosttax<-c(AverageposttaxTot,AverageposttaxQ1, AverageposttaxQ2, AverageposttaxQ3,AverageposttaxQ4,AverageposttaxQ5)
 Changeinrev<-c(ChangeinrevTot,Changeinrev1,Changeinrev2,Changeinrev3,Changeinrev4,Changeinrev5)
 Originalgini<-c(round(ineq(income.vec, type="Gini"),6),"-","-","-","-","-")
-Newgini<-c(round(ineq(Income_Data$Remaining_Balance, type="Gini"),6),"-","-","-","-","-")
+Newgini<-c(round(ineq(Income_Data$Remaining_Balance_After_TaxChange, type="Gini"),6),"-","-","-","-","-")
 
 # Part E
 ##Assume poverty line is 2000000 yen, source: https://www.economist.com/asia/2015/04/04/struggling 
@@ -182,7 +187,7 @@ poverty_line_income = 2000000
 AboveLinePre<-Income_Data_Tax[!Income_Data_Tax$Remaining_Balance_Before_TaxChange <= poverty_line_income,]
 AboveLinePost<-Income_Data_Tax[!Income_Data_Tax$Remaining_Balance_After_Tax <= poverty_line_income,]
 Prepercent=nrow(AboveLinePre)/length(Income_Data$Remaining_Balance_Before_TaxChange)
-Postpercent=nrow(AboveLinePost)/length(Income_Data$Remaining_Balance_After_Tax)
+Postpercent=nrow(AboveLinePost)/length(Income_Data$Remaining_Balance_After_TaxChange)
 
 Prepercent<-c(Prepercent,"-","-","-","-","-")
 Postpercent<-c(Postpercent,"-","-","-","-","-")

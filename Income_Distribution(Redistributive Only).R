@@ -12,15 +12,16 @@ library(stringr)
 #Income thresholds from data (per annum per capita in yen)
 
 #Average income per household/average number of people in a household
-Averagenuminhouse= (1.27+1.91+2.29+2.89+3.27)/5
+Averageearninhouse= (0.32+0.62+	1.04+	1.52	+1.88)/5
+
 
 #Average yearly income quintile per household/average number of people in a household
 #to obtain average yearly income quintile per capita.
 
-inc_1 <- 2320000/Averagenuminhouse #Lowest Income Quintile
-inc_2 <- 3540000/Averagenuminhouse #Second Quintile
-inc_3 <- 4990000/Averagenuminhouse #Third quintile
-inc_4 <- 7380000/Averagenuminhouse #Fourth Quintile
+inc_1 <- 2320000/Averageearninhouse #Lowest Income Quintile
+inc_2 <- 3540000/Averageearninhouse #Second Quintile
+inc_3 <- 4990000/Averageearninhouse #Third quintile
+inc_4 <- 7380000/Averageearninhouse #Fourth Quintile
 #above is per person in household
 
 ave_income <- 2849000 # https://www.ceicdata.com/datapage/charts/ipc_japan_annual-household-income-per-capita/?type=area&from=2009-12-01&to=2020-12-01&lang=en

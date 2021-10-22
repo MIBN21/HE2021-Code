@@ -12,14 +12,14 @@ library(stringr)
 #Income thresholds from data (per annum per capita in yen)
 
 #Average income per household/average number of people in a household
- Averagenuminhouse= (1.27+1.91+2.29+2.89+3.27)/5
+Averageearninhouse= (0.32+0.62+	1.04+	1.52	+1.88)/5
  #Average yearly income quintile per household/average number of people in a household
  #to obtain average yearly income quintile per capita.
 
- inc_1 <- 2320000/Averagenuminhouse#Lowest Income Quintile
- inc_2 <- 3540000/Averagenuminhouse#Second Quintile
- inc_3 <- 4990000/Averagenuminhouse#Third quintile
- inc_4 <- 7380000/Averagenuminhouse#Fourth Quintile
+ inc_1 <- 2320000/Averageearninhouse#Lowest Income Quintile
+ inc_2 <- 3540000/Averageearninhouse#Second Quintile
+ inc_3 <- 4990000/Averageearninhouse#Third quintile
+ inc_4 <- 7380000/Averageearninhouse#Fourth Quintile
 #above is per person in household
 
 ave_income <- 2849000 # https://www.ceicdata.com/datapage/charts/ipc_japan_annual-household-income-per-capita/?type=area&from=2009-12-01&to=2020-12-01&lang=en
@@ -51,11 +51,11 @@ summary(income_5)
 
 ##Average consumption expenditure of each quintile per capita (big assumptions made here)
 #https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
-Q1 = 137856*12/Averagenuminhouse
-Q2 = 192473*12/Averagenuminhouse
-Q3 = 237683*12/Averagenuminhouse
-Q4 = 282792*12/Averagenuminhouse
-Q5 = 381189*12/Averagenuminhouse
+Q1 = 137856*12/Averageearninhouse
+Q2 = 192473*12/Averageearninhouse
+Q3 = 237683*12/Averageearninhouse
+Q4 = 282792*12/Averageearninhouse
+Q5 = 381189*12/Averageearninhouse
 
 ##Average APC of each quintile (big assumptions made here)
 ###PROB need to change because APC1 is suppose to be above 100%
@@ -114,11 +114,16 @@ Income_Data_Total$RemainingInc_Pre <- Income_Data_Total$Income - Income_Data_Tot
 Income_Data_Total$RemainingInc_Post <- Income_Data_Total$New_Income_with_Red - Income_Data_Total$Post_Policy_Tax_Amount
 View(Income_Data_Total)
 
+dupli_income=Income_Data_Total
+dupli_income$justTax <- Income_Data_Total$Pre_Consume_Expenditure * Income_Data_Total$New_Tax/100
+dupli_income$justTaxRemain<-Income_Data_Total$Income - dupli_income$justTax
+
 ###Summary Statistics
 
 ###Part A
 ##Gini
 Originalgini<-c(round(ineq(income.vec, type="Gini"),6),"-","-","-","-","-")
+Middlegini<-c(round(ineq(dupli_income$justTaxRemain, type="Gini"),6),"-","-","-","-","-")
 Newgini<-c(round(ineq(Income_Data_Total$RemainingInc_Post, type="Gini"),6),"-","-","-","-","-")
 
 ### Part B and C
@@ -205,10 +210,11 @@ PosttaxQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),9])
 PosttaxTot=sum(Income_Data_Total[,9])
 AmPosttax<-c(PosttaxTot,PosttaxQ1,PosttaxQ2,PosttaxQ3,PosttaxQ4,PosttaxQ5)
 
-NetChangeGovPre<-AmPretax -Governmentspend_Pre
-NetChangeGovPost<-AmPosttax -Governmentspend_Post
-NetChangeGovPre<-data.frame(NetChangeGovPre)
-NetChangeGovPost<-data.frame(NetChangeGovPost)
+##If value is positive Tax revenue is more than Spending
+Net_Government_Expenditure_Pre<-AmPretax -Governmentspend_Pre
+Net_Government_Expenditure_Post<-AmPosttax -Governmentspend_Post
+Net_Government_Expenditure_Pre<-data.frame(Net_Government_Expenditure_Pre)
+Net_Government_Expenditure_Post<-data.frame(Net_Government_Expenditure_Post)
 ###Part D
 PreIncomeQ1=sum(Income_Data_Total[1:length(income_1),1])
 PreIncomeQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),1])
@@ -217,13 +223,6 @@ PreIncomeQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),1])
 PreIncomeQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),1])
 PreIncomeTot=sum(Income_Data_Total[,1])
 
-PreNetBenefitQ1 = NetChangeGovPre[2,]/PreIncomeQ1*100
-PreNetBenefitQ2 = NetChangeGovPre[3,]/PreIncomeQ2*100
-PreNetBenefitQ3 = NetChangeGovPre[4,]/PreIncomeQ3*100
-PreNetBenefitQ4 = NetChangeGovPre[5,]/PreIncomeQ4*100
-PreNetBenefitQ5 = NetChangeGovPre[6,]/PreIncomeQ5*100
-PreNetBenefitTotal =NetChangeGovPre[1,]/PreIncomeTot*100
-
 PostIncomeQ1=sum(Income_Data_Total[1:length(income_1),2])
 PostIncomeQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),2])
 PostIncomeQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),2])
@@ -231,16 +230,21 @@ PostIncomeQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),2])
 PostIncomeQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),2])
 PostIncomeTot=sum(Income_Data_Total[,2])
 
-PostNetBenefitQ1 = NetChangeGovPost[2,]/PostIncomeQ1*100
-PostNetBenefitQ2 = NetChangeGovPost[3,]/PostIncomeQ2*100
-PostNetBenefitQ3 = NetChangeGovPost[4,]/PostIncomeQ3*100
-PostNetBenefitQ4 = NetChangeGovPost[5,]/PostIncomeQ4*100
-PostNetBenefitQ5 = NetChangeGovPost[6,]/PostIncomeQ5*100
-PostNetBenefitTotal =NetChangeGovPost[1,]/PostIncomeTot*100
+Average_Benefit_of_PolicyQ1=Government_Spending_Q1/PreIncomeQ1*100
+Average_Benefit_of_PolicyQ2=Government_Spending_Q2/PreIncomeQ2*100
+Average_Benefit_of_PolicyQ3=Government_Spending_Q3/PreIncomeQ3*100
+Average_Benefit_of_PolicyQ4=Government_Spending_Q4/PreIncomeQ4*100
+Average_Benefit_of_PolicyQ5=Government_Spending_Q5/PreIncomeQ5*100
+Average_Benefit_of_PolicyTot =Government_Spending_Total/PreIncomeTot*100
+Average_Benefit_of_Policy<-c(Average_Benefit_of_PolicyTot,Average_Benefit_of_PolicyQ1,Average_Benefit_of_PolicyQ2,Average_Benefit_of_PolicyQ3,Average_Benefit_of_PolicyQ4,Average_Benefit_of_PolicyQ5)
 
-PreNetBenefit<-c(PreNetBenefitTotal,PreNetBenefitQ1,PreNetBenefitQ2,PreNetBenefitQ3,PreNetBenefitQ4,PreNetBenefitQ5)
-PostNetBenefit<-c(PostNetBenefitTotal,PostNetBenefitQ1,PostNetBenefitQ2,PostNetBenefitQ3,PostNetBenefitQ4,PostNetBenefitQ5)
-
+Average_Burden_Of_PolicyQ1<-PosttaxQ1/PostIncomeQ1*100
+Average_Burden_Of_PolicyQ2<-PosttaxQ2/PostIncomeQ2*100
+Average_Burden_Of_PolicyQ3<-PosttaxQ3/PostIncomeQ3*100
+Average_Burden_Of_PolicyQ4<-PosttaxQ4/PostIncomeQ4*100
+Average_Burden_Of_PolicyQ5<-PosttaxQ5/PostIncomeQ5*100
+Average_Burden_Of_PolicyTot<-PosttaxTot/PostIncomeTot*100
+Average_Burden_Of_Policy_Post_Red<-c(Average_Burden_Of_PolicyTot,Average_Burden_Of_PolicyQ1,Average_Burden_Of_PolicyQ2,Average_Burden_Of_PolicyQ3,Average_Burden_Of_PolicyQ4,Average_Burden_Of_PolicyQ5)
 
 ###Part E
 ##Proportion of population against poverty line
@@ -253,8 +257,8 @@ Prepercent<-c(Prepercent,"-","-","-","-","-")
 Postpercent<-c(Postpercent,"-","-","-","-","-")
 IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 
-Summary_statistics_Both<-data.frame(IncomeQuintile, Originalgini, Newgini,Governmentspend_Pre,Governmentspend_Post,AmPretax,AmPosttax,NetChangeGovPre,NetChangeGovPost,PreNetBenefit,PostNetBenefit,Prepercent,Postpercent)
-colnames(Summary_statistics_Both) <- c("Income_Bracket","Old_Gini","Post_Policy_Gini","Government_Expenditure_Pre","Government_Expenditure_Post","Government_Revenue_Pre","Government_Revenue_Post","NetChangeGovPre","NetChangeGovPost",
-                                      "PreNetBenefit","PostNetBenefit","Proportion_above_Poverty_Line(Pre)",
+Summary_statistics_Both<-data.frame(IncomeQuintile, Originalgini, Middlegini,Newgini,Governmentspend_Pre,Governmentspend_Post,AmPretax,AmPosttax,Net_Government_Expenditure_Pre,Net_Government_Expenditure_Post,Average_Benefit_of_Policy,Average_Burden_Of_Policy_Post_Red,Prepercent,Postpercent)
+colnames(Summary_statistics_Both) <- c("Income_Bracket","Old_Gini","Temp_Gini_Tax_Only","Post_Policy_Gini","Government_Expenditure_Pre","Government_Expenditure_Post","Government_Revenue_Pre","Government_Revenue_Post","Net_Government_Expenditure_Pre","Net_Government_Expenditure_Post",
+                                      "Average_Benefit_of_Policy","Average_Burden_Of_Policy_Post_Red","Proportion_above_Poverty_Line(Pre)",
                                       "Proportion_above_Poverty_Line(Post)")
 View(Summary_statistics_Both)
