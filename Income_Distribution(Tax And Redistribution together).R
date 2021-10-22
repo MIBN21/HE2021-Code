@@ -66,7 +66,7 @@ APC4 = (Q4/summary(income_4)[4])*100
 APC5 = (Q5/summary(income_5)[4])*100
 ## average apc documented is about 69.3
 #MeanAPC = (APC1+ APC2+APC3+ APC4 + APC5)/5
-#print(MeanAPC) (71.18 Very good considering there are assum,ptions in our data made)
+#print(MeanAPC) (74.29 Very good considering there are assum,ptions in our data made)
 
 Income_Data <- data.frame(income.vec)
 colnames(Income_Data) <- c("Income")

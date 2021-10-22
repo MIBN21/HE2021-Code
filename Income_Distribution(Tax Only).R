@@ -13,14 +13,13 @@ library(stringr)
 
 #Average income per household/average number of people in a household
 Averageearninhouse= (0.32+0.62+	1.04+	1.52	+1.88)/5
-
 #Average yearly income quintile per household/average number of people in a household
 #to obtain average yearly income quintile per capita.
 
 inc_1 <- 2320000/Averageearninhouse #Lowest Income Quintile
-inc_2 <- 3540000/Averageearninhouse #Second Quintile
-inc_3 <- 4990000/Averageearninhouse #Third quintile
-inc_4 <- 7380000/Averageearninhouse #Fourth Quintile
+inc_2 <- 3540000/Averageearninhouse#Second Quintile
+inc_3 <- 4990000/Averageearninhouse#Third quintile
+inc_4 <- 7380000/Averageearninhouse#Fourth Quintile
 #above is per person in household
 
 ave_income <- 2849000 # https://www.ceicdata.com/datapage/charts/ipc_japan_annual-household-income-per-capita/?type=area&from=2009-12-01&to=2020-12-01&lang=en
@@ -67,9 +66,13 @@ Income_Data <- data.frame(Income_Data[order(Income_Data$Income),])
 ##Average consumption expenditure of each quintile per capita (big assumptions made here)
 #https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
 Q1 = 137856*12/Averageearninhouse
+
 Q2 = 192473*12/Averageearninhouse
+
 Q3 = 237683*12/Averageearninhouse
+
 Q4 = 282792*12/Averageearninhouse
+
 Q5 = 381189*12/Averageearninhouse
 
 ##Average APC of each quintile (big assumptions made here)
@@ -81,7 +84,7 @@ APC4 = (Q4/summary(income_4)[4])*100
 APC5 = (Q5/summary(income_5)[4])*100
 ## average apc documented is about 69.3
 #MeanAPC = (APC1+ APC2+APC3+ APC4 + APC5)/5
-#print(MeanAPC) (71.18 Very good considering there are assum,ptions in our data made)
+#print(MeanAPC)# (74.29 Very good considering there are assum,ptions in our data made)
 
 ##Tax rate columns
 Old_Tax_Rate<-seq(from = 8.0, to = 8.0, length.out = 10000000)
