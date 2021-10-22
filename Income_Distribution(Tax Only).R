@@ -101,12 +101,12 @@ Income_Data$PreTaxChange <- Income_Data$Consume * Income_Data$Old_Tax/100
 Income_Data$PostTaxChange <- Income_Data$Consume * Income_Data$New_Tax/100
 Income_Data$RemainingInc <- Income_Data$Income - Income_Data$PostTaxChange
 
-poverty_line_income <- 2000000
-Income_Data$Income_With_Poverty_Line <- ifelse(Income_Data$RemainingInc >= poverty_line_income, "Above", "Below")
+# poverty_line_income <- 2000000
+# Income_Data$Income_With_Poverty_Line <- ifelse(Income_Data$RemainingInc >= poverty_line_income, "Above", "Below")
 
 colnames(Income_Data) <- c("Income","APC_Value","Old_Tax","New_Tax","Consumption_Expenditure",
                            "Consumption_Tax_Amount(Pre)","Consumption_Tax_Amount(Post)",
-                           "Remaining_Balance_After_Tax","Check_with_Poverty_Line")
+                           "Remaining_Balance_After_Tax")#,"Check_with_Poverty_Line")
 
 Income_Data_Tax=Income_Data
 
@@ -175,9 +175,22 @@ Changeinrev<-c(ChangeinrevTot,Changeinrev1,Changeinrev2,Changeinrev3,Changeinrev
 Originalgini<-c(round(ineq(income.vec, type="Gini"),6),"-","-","-","-","-")
 Newgini<-c(round(ineq(Income_Data$Remaining_Balance, type="Gini"),6),"-","-","-","-","-")
 
-Summary_statistics<-data.frame(IncomeQuintile, Originalgini, Newgini,AmPretax, AmPosttax, AveragePretax,AveragePosttax,Changeinrev)
+# Part E
+##Assume poverty line is 2000000 yen, source: https://www.economist.com/asia/2015/04/04/struggling 
+poverty_line_income = 2000000
+AboveLinePre<-Income_Data_Tax[!Income_Data_Tax$Income <= poverty_line_income,]
+AboveLinePost<-Income_Data_Tax[!Income_Data_Tax$RemainingInc <= poverty_line_income,]
+
+Prepercent=length(AboveLinePre)/length(Income_Data$Income)
+Postpercent=length(AboveLinePost)/length(Income_Data$RemainingInc)
+
+Prepercent<-c(Prepercent,"-","-","-","-","-")
+Postpercent<-c(Postpercent,"-","-","-","-","-")
+
+Summary_statistics<-data.frame(IncomeQuintile, Originalgini, Newgini,AmPretax, AmPosttax, AveragePretax,AveragePosttax,Changeinrev,Prepercent,Postpercent)
 colnames(Summary_statistics) <- c("Income_Bracket","Old_Gini","Post_Tax_Gini","AmountCollected_PreTaxChange","AmountCollected_PostTaxChange", 
-                                  "Burden_Of_Tax(Pre)%", "Burden_Of_Tax(Post)%","PercentageChange_TaxCollected(Pre vs Post)")
+                                  "Burden_Of_Tax(Pre)%", "Burden_Of_Tax(Post)%","PercentageChange_TaxCollected(Pre vs Post)",
+                                  "Proportion_above_Poverty_Line(Pre)","Proportion_above_Poverty_Line(Post)")
 
 Summary_statistics_Tax=Summary_statistics
 View(Summary_statistics_Tax)
