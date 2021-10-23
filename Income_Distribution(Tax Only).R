@@ -12,14 +12,15 @@ library(stringr)
 #Income thresholds from data (per annum per capita in yen)
 
 #Average income per household/average number of people in a household
-Averageearninhouse= (0.32+0.62+	1.04+	1.52	+1.88)/5
+Averageearninhouse= (0.32 + 0.62 + 1.04 + 1.52 + 1.88)/5
+
 #Average yearly income quintile per household/average number of people in a household
 #to obtain average yearly income quintile per capita.
 
 inc_1 <- 2320000/Averageearninhouse #Lowest Income Quintile
-inc_2 <- 3540000/Averageearninhouse#Second Quintile
-inc_3 <- 4990000/Averageearninhouse#Third quintile
-inc_4 <- 7380000/Averageearninhouse#Fourth Quintile
+inc_2 <- 3540000/Averageearninhouse #Second Quintile
+inc_3 <- 4990000/Averageearninhouse #Third quintile
+inc_4 <- 7380000/Averageearninhouse #Fourth Quintile
 #above is per person in household
 
 ave_income <- 2849000 # https://www.ceicdata.com/datapage/charts/ipc_japan_annual-household-income-per-capita/?type=area&from=2009-12-01&to=2020-12-01&lang=en
@@ -53,6 +54,7 @@ length(income_2)
 length(income_3)
 length(income_4)
 length(income_5)
+
 ###Your own analysis starts####
 
 ## Orginial Income Data
@@ -84,11 +86,12 @@ APC4 = (Q4/summary(income_4)[4])*100
 APC5 = (Q5/summary(income_5)[4])*100
 ## average apc documented is about 69.3
 #MeanAPC = (APC1+ APC2+APC3+ APC4 + APC5)/5
-#print(MeanAPC)# (74.29 Very good considering there are assum,ptions in our data made)
+#print(MeanAPC)# (74.29 Very good considering there are assumptions in our data made)
 
 ##Tax rate columns
 Old_Tax_Rate<-seq(from = 8.0, to = 8.0, length.out = 10000000)
 Old_Tax_Rate<-data.frame(Old_Tax_Rate)
+
 New_Tax_Rate<-seq(from = 10.0, to = 10.0, length.out = 10000000)
 New_Tax_Rate<-data.frame(New_Tax_Rate)
 
@@ -153,19 +156,19 @@ IncomeQ5=sum(Income_Data[(length(income_4)+1):length(income.vec),1])
 IncomeTot=sum(Income_Data[,1])
 
 # Compute tax amount
-AveragepretaxQ1= PretaxQ1/IncomeQ1 *100
-AveragepretaxQ2= PretaxQ2/IncomeQ2 *100
-AveragepretaxQ3= PretaxQ3/IncomeQ3 *100
-AveragepretaxQ4= PretaxQ4/IncomeQ4 *100
-AveragepretaxQ5= PretaxQ5/IncomeQ5 *100
-AveragepretaxTot= PretaxTot/IncomeTot *100
+AveragepretaxQ1 = PretaxQ1/IncomeQ1 *100
+AveragepretaxQ2 = PretaxQ2/IncomeQ2 *100
+AveragepretaxQ3 = PretaxQ3/IncomeQ3 *100
+AveragepretaxQ4 = PretaxQ4/IncomeQ4 *100
+AveragepretaxQ5 = PretaxQ5/IncomeQ5 *100
+AveragepretaxTot = PretaxTot/IncomeTot *100
 
-AverageposttaxQ1= PosttaxQ1/IncomeQ1 *100
-AverageposttaxQ2= PosttaxQ2/IncomeQ2 *100
-AverageposttaxQ3= PosttaxQ3/IncomeQ3 *100
-AverageposttaxQ4= PosttaxQ4/IncomeQ4 *100
-AverageposttaxQ5= PosttaxQ5/IncomeQ5 *100
-AverageposttaxTot= PosttaxTot/IncomeTot *100
+AverageposttaxQ1 = PosttaxQ1/IncomeQ1 *100
+AverageposttaxQ2 = PosttaxQ2/IncomeQ2 *100
+AverageposttaxQ3 = PosttaxQ3/IncomeQ3 *100
+AverageposttaxQ4 = PosttaxQ4/IncomeQ4 *100
+AverageposttaxQ5 = PosttaxQ5/IncomeQ5 *100
+AverageposttaxTot = PosttaxTot/IncomeTot *100
 
 Changeinrev1=(PosttaxQ1-PretaxQ1)/PretaxQ1*100
 Changeinrev2=(PosttaxQ2-PretaxQ2)/PretaxQ2*100
@@ -181,6 +184,7 @@ AmPosttax<-c(PosttaxTot,PosttaxQ1,PosttaxQ2,PosttaxQ3,PosttaxQ4,PosttaxQ5)
 AveragePretax<-c(AveragepretaxTot,AveragepretaxQ1,AveragepretaxQ2,AveragepretaxQ3,AveragepretaxQ4,AveragepretaxQ5)
 AveragePosttax<-c(AverageposttaxTot,AverageposttaxQ1, AverageposttaxQ2, AverageposttaxQ3,AverageposttaxQ4,AverageposttaxQ5)
 Changeinrev<-c(ChangeinrevTot,Changeinrev1,Changeinrev2,Changeinrev3,Changeinrev4,Changeinrev5)
+
 Originalgini<-c(round(ineq(income.vec, type="Gini"),6),"-","-","-","-","-")
 Newgini<-c(round(ineq(Income_Data$Remaining_Balance_After_TaxChange, type="Gini"),6),"-","-","-","-","-")
 

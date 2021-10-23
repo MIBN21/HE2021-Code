@@ -5,17 +5,17 @@
 ###Data Inputs####
 # Find this data for your chosen country: 
 #Income thresholds from data (per annum per capita in yen)
-inc_1 <- 997421  #Lowest Income Quintile
-inc_2 <- 1521926  #Second Quintile
-inc_3 <- 2145314  #Third quintile
-inc_4 <- 3172829  #Fourth Quintile
+# inc_1 <- 997421  #Lowest Income Quintile
+# inc_2 <- 1521926  #Second Quintile
+# inc_3 <- 2145314  #Third quintile
+# inc_4 <- 3172829  #Fourth Quintile
 #above is per person in household
 
 #below is per earner
-# inc_1 <- 2148148  #Lowest Income Quintile
-# inc_2 <- 3277778  #Second Quintile
-# inc_3 <- 4620370  #Third quintile
-# inc_4 <- 6833333  #Fourth Quintile
+inc_1 <- 2148148  #Lowest Income Quintile
+inc_2 <- 3277778  #Second Quintile
+inc_3 <- 4620370  #Third quintile
+inc_4 <- 6833333  #Fourth Quintile
 #above is wrong
 
 ave_income <- 2849000 # https://stats.oecd.org/index.aspx?queryid=66670
@@ -39,21 +39,25 @@ income.vec<-c(income_1, income_2, income_3, income_4, income_5)
 summary(income.vec)
 length(income.vec)
 
-summary(income)
+summary(income.vec)
 summary(income_1)
 summary(income_2)
 summary(income_3)
 summary(income_4)
 ###Your own analysis starts####
 
-new_metadata <- data.frame(income)
+new_metadata <- data.frame(income.vec)
 View(new_metadata)
 
-hist(income,
+hist(income.vec,
      main="Income Distribution Chart of Japan 2018",
      xlab="Income Values",
      col="blue",
      freq=TRUE
 )
 
-install.packages(c('tibble', 'dplyr', 'readr'))
+length(income_1)
+length(income_2)
+length(income_3)
+length(income_4)
+# install.packages(c('tibble', 'dplyr', 'readr'))
