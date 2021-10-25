@@ -1,12 +1,11 @@
 #install.packages("ineq")
 #This uses data from Japan: 
 # Source: https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
-
-library("ineq")
-library(dplyr)
-library(tidyr)
-library(stringr)
-
+#install.packages("tidyverse")
+#install.packages("reshape2")
+library(ineq)
+library(ggplot2)
+library(reshape2)
 ###Data Inputs####
 # Find this data for your chosen country: 
 #Income thresholds from data (per annum per capita in yen)
@@ -193,16 +192,49 @@ Newgini<-c(round(ineq(Income_Data$Remaining_Balance_After_TaxChange, type="Gini"
 poverty_line_income = 2000000
 AboveLinePre<-Income_Data_Tax[!Income_Data_Tax$Remaining_Balance_Before_TaxChange <= poverty_line_income,]
 AboveLinePost<-Income_Data_Tax[!Income_Data_Tax$Remaining_Balance_After_Tax <= poverty_line_income,]
-Prepercent=nrow(AboveLinePre)/length(Income_Data$Remaining_Balance_Before_TaxChange)
-Postpercent=nrow(AboveLinePost)/length(Income_Data$Remaining_Balance_After_TaxChange)
+Prespercent=100-((nrow(AboveLinePre)/length(Income_Data$Remaining_Balance_Before_TaxChange))*100)
+Postspercent=100-((nrow(AboveLinePost)/length(Income_Data$Remaining_Balance_After_TaxChange))*100)
 
-Prepercent<-c(Prepercent,"-","-","-","-","-")
-Postpercent<-c(Postpercent,"-","-","-","-","-")
+Prepercent<-c(Prespercent,"-","-","-","-","-")
+Postpercent<-c(Postspercent,"-","-","-","-","-")
 
 Summary_statistics<-data.frame(IncomeQuintile, Originalgini, Newgini,AmPretax, AmPosttax, AveragePretax,AveragePosttax,Changeinrev,Prepercent,Postpercent)
 colnames(Summary_statistics) <- c("Income_Bracket","Old_Gini","Post_Tax_Gini","AmountCollected_PreTaxChange","AmountCollected_PostTaxChange", 
                                   "Burden_Of_Tax(Pre)%", "Burden_Of_Tax(Post)%","PercentageChange_TaxCollected(Pre vs Post)",
-                                  "Proportion_above_Poverty_Line(Pre)","Proportion_above_Poverty_Line(Post)")
+                                  "Proportion_Below_Poverty_Line(Pre)","Proportion_Below_Poverty_Line(Post)")
 
 Summary_statistics_Tax=Summary_statistics
 View(Summary_statistics_Tax)
+
+##Graphs
+giniid<-c("Old Gini","New Gini")
+ginivalue<-c(round(ineq(income.vec, type="Gini"),6),round(ineq(Income_Data$Remaining_Balance_After_TaxChange, type="Gini"),6))
+giniplot<-data.frame(giniid,ginivalue)
+giniplot<-melt(giniplot)
+p<-ggplot(giniplot,aes(x=reorder(giniid, ginivalue),y=ginivalue,fill=giniid))+
+  geom_bar(stat="identity",position="dodge",width = 0.5)+ylim(0, 0.5)
+p.labs <- p + labs(title = "Gini Changes", x = "Gini", y = "Gini Value") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Type")
+p.labs
+
+govexpendplot<-data.frame(IncomeQuintile,AmPretax,AmPosttax)
+govexpendplot<-melt(govexpendplot)
+c<-ggplot(govexpendplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
+  geom_bar(stat="identity",position="dodge")
+c.labs <- c + labs(title = "Government Revenue", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("PreTax", "PostTax"))
+c.labs
+
+burdenplot<-data.frame(IncomeQuintile,AveragePretax,AveragePosttax)
+burdenplot<-melt(burdenplot)
+d<-ggplot(burdenplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
+  geom_bar(stat="identity",position="dodge")
+d.labs <- d + labs(title = "Average Tax Burden", x = "Income Bracket", y = "Average Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("Pre-Tax-Burden", "Post-Tax-Burden"))
+d.labs
+
+propid<-c("Old Proportion","New Proportion")
+propvalue<-c(Prespercent,Postspercent)
+propplot<-data.frame(propid,propvalue)
+propplot<-melt(propplot)
+e<-ggplot(propplot,aes(x=reorder(propid,propvalue),y=propvalue,fill=propid))+
+  geom_bar(stat="identity",position="dodge",width = 0.5)
+e.labs <- e + labs(title = "Proportion of Population Below Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy",labels = c("PostTax", "PreTax"))
+e.labs

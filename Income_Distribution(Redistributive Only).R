@@ -1,18 +1,18 @@
 #install.packages("ineq")
-#This uses data from the Philippines: 
+#This uses data from Japan: 
 # Source: https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
-
-library("ineq")
-library(dplyr)
-library(tidyr)
-library(stringr)
-
+#install.packages("tidyverse")
+#install.packages("reshape2")
+library(ineq)
+library(ggplot2)
+library(reshape2)
 ###Data Inputs####
 # Find this data for your chosen country: 
 #Income thresholds from data (per annum per capita in yen)
 
 #Average income per household/average number of people in a household
-Averageearninhouse= (0.32 + 0.62 + 1.04 +	1.52 + 1.88)/5
+Averageearninhouse= (0.32+0.62+	1.04+	1.52	+1.88)/5
+
 
 #Average yearly income quintile per household/average number of people in a household
 #to obtain average yearly income quintile per capita.
@@ -76,71 +76,57 @@ Income_Data_Red=Income_Data_Total
 View(Income_Data_Red)
 
 ########################DO NOT TOUCH THE IF ELSE STATEMENT:THE INDENTATIONS ALL MATTER
-##Analysis (30000 yen per year per capita)
+##Analysis (30000yen per year per capita)
 Remaining_people<-AmountofVouchers
 Government_Spending_Total =Remaining_people*30000
 
-# Q1
 if(Remaining_people>=length(income_1)){
   Government_Spending_Q1 = length(income_1)*30000
   Remaining_people=Remaining_people-length(income_1)
-  
 } else if (Remaining_people>0){
+  
   Government_Spending_Q1 = Remaining_people*30000
   Remaining_people=0
-  
 }else{
   Government_Spending_Q1 =0
 }
 
-# Q2
 if(Remaining_people>=length(income_2)){
   Government_Spending_Q2 = length(income_2)*30000
   Remaining_people=Remaining_people-length(income_2)
-  
 }else if (Remaining_people>0){
   Government_Spending_Q2 = Remaining_people*30000
   Remaining_people=0
-  
 }else{
   Government_Spending_Q2 =0
 }
 
-# Q3
 if(Remaining_people>=length(income_3)){
   Government_Spending_Q3 = length(income_3)*30000
   Remaining_people=Remaining_people-length(income_3)
-  
 }else if (Remaining_people>0){
   Government_Spending_Q3 = Remaining_people*30000
   Remaining_people=0
-  
 }else{
   Government_Spending_Q3 =0
 }
 
-# Q4
 if(Remaining_people>=length(income_4)){
   Government_Spending_Q4 = length(income_4)*30000
   Remaining_people=Remaining_people-length(income_4)
-  
 }else if (Remaining_people>0){
   Government_Spending_Q4 = Remaining_people*30000
   Remaining_people=0
-  
 }else{
   Government_Spending_Q4 =0
 }
 
-# Q5
 if(Remaining_people>=length(income_5)){
   Government_Spending_Q5 = length(income_5)*30000
   Remaining_people=Remaining_people-length(income_5)
-  
 }else if (Remaining_people>0){
   Government_Spending_Q5 = Remaining_people*30000
   Remaining_people=0
-  
 }else{
   Government_Spending_Q5 =0
 }
@@ -149,7 +135,7 @@ if(Remaining_people>=length(income_5)){
 Originalgini<-c(round(ineq(income.vec, type="Gini"),6),"-","-","-","-","-")
 Newgini<-c(round(ineq(Income_Data_with_Redistributive$Income, type="Gini"),6),"-","-","-","-","-")
 
-#Parts B and C
+#Part B and C
 Governmentspend<-c(Government_Spending_Total,Government_Spending_Q1,Government_Spending_Q2,
                    Government_Spending_Q3,Government_Spending_Q4,Government_Spending_Q5)
 
@@ -173,14 +159,13 @@ Benefits<-c(BenefitTotal,BenefitQ1,BenefitQ2,BenefitQ3,BenefitQ4,BenefitQ5)
 #Part E
 ##Assume poverty line is 2000000 yen, source: https://www.economist.com/asia/2015/04/04/struggling 
 poverty_line_income = 2000000
-
 AboveLinePre<-Income_Data_Total[!Income_Data_Total$Income <= poverty_line_income,]
 AboveLinePost<-Income_Data_Total[!Income_Data_Total$Post_Policy_Income <= poverty_line_income,]
-Prepercent=nrow(AboveLinePre)/length(Income_Data_Total$Income)
-Postpercent=nrow(AboveLinePost)/length(Income_Data_Total$Post_Policy_Income)
+Prespercent=(nrow(AboveLinePre)/length(Income_Data_Total$Income))*100
+Postspercent=(nrow(AboveLinePost)/length(Income_Data_Total$Post_Policy_Income))*100
 
-Prepercent<-c(Prepercent,"-","-","-","-","-")
-Postpercent<-c(Postpercent,"-","-","-","-","-")
+Prepercent<-c(Prespercent,"-","-","-","-","-")
+Postpercent<-c(Postspercent,"-","-","-","-","-")
 IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 
 Summary_statistics_Red<-data.frame(IncomeQuintile, Originalgini, Newgini,Governmentspend,Benefits,Prepercent,Postpercent)
@@ -188,3 +173,36 @@ colnames(Summary_statistics_Red) <- c("Income_Bracket","Old_Gini","Post_Policy_G
                                       "Average_Benefit_of_Policy","Proportion_above_Poverty_Line(Pre)",
                                       "Proportion_above_Poverty_Line(Post)")
 View(Summary_statistics_Red)
+
+##Graphs
+giniid<-c("Old Gini","New Gini")
+ginivalue<-c(round(ineq(income.vec, type="Gini"),6),round(ineq(Income_Data_with_Redistributive$Income, type="Gini"),6))
+giniplot<-data.frame(giniid,ginivalue)
+giniplot<-melt(giniplot)
+p<-ggplot(giniplot,aes(x=reorder(giniid, ginivalue),y=ginivalue,fill=giniid))+
+  geom_bar(stat="identity",position="dodge",width = 0.5)+ylim(0, 0.5)
+p.labs <- p + labs(title = "Gini Changes", x = "Gini", y = "Gini Value") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Type")
+p.labs
+
+govrevplot<-data.frame(IncomeQuintile,Governmentspend)
+govrevplot<-melt(govrevplot)
+c<-ggplot(govrevplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
+  geom_bar(stat="identity",position="dodge")
+c.labs <- c + labs(title = "Government Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
+c.labs
+
+benefitplot<-data.frame(IncomeQuintile,Benefits)
+benefitplot<-melt(benefitplot)
+d<-ggplot(benefitplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
+  geom_bar(stat="identity",position="dodge")
+d.labs <- d + labs(title = "Average Benefit of Policy", x = "Income Bracket", y = "Average Percentage (%)") + theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
+d.labs
+
+propid<-c("Old Proportion","New Proportion")
+propvalue<-c(Prespercent,Postspercent)
+propplot<-data.frame(propid,propvalue)
+propplot<-melt(propplot)
+e<-ggplot(propplot,aes(x=reorder(propid,propvalue),y=propvalue,fill=propid))+
+  geom_bar(stat="identity",position="dodge",width = 0.5)
+e.labs <- e + labs(title = "Proportion of Population above Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))
+e.labs
