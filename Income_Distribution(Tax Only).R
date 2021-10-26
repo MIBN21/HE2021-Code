@@ -132,26 +132,31 @@ Income_Data_Tax=Income_Data
 View(Income_Data_Tax)
 
 # Tax amount before policy
-PretaxQ1=sum(Income_Data[1:length(income_1),6])
-PretaxQ2=sum(Income_Data[(length(income_1)+1):length(income_2),6])
-PretaxQ3=sum(Income_Data[(length(income_2)+1):length(income_3),6])
-PretaxQ4=sum(Income_Data[(length(income_3)+1):length(income_4),6])
-PretaxQ5=sum(Income_Data[(length(income_4)+1):length(income.vec),6])
+A = length(income_1)
+B= length(income_1)+length(income_2)
+C=length(income_1)+length(income_2)+length(income_3)
+D=length(income_1)+length(income_2)+length(income_3)+length(income_4)
+
+PretaxQ1=sum(Income_Data[1:A,6])
+PretaxQ2=sum(Income_Data[(A+1):B,6])
+PretaxQ3=sum(Income_Data[(B+1):C,6])
+PretaxQ4=sum(Income_Data[(C+1):D,6])
+PretaxQ5=sum(Income_Data[(D+1):length(income.vec),6])
 PretaxTot=sum(Income_Data[,6])
 
 # Tax amount after policy
-PosttaxQ1=sum(Income_Data[1:length(income_1),7])
-PosttaxQ2=sum(Income_Data[(length(income_1)+1):length(income_2),7])
-PosttaxQ3=sum(Income_Data[(length(income_2)+1):length(income_3),7])
-PosttaxQ4=sum(Income_Data[(length(income_3)+1):length(income_4),7])
-PosttaxQ5=sum(Income_Data[(length(income_4)+1):length(income.vec),7])
+PosttaxQ1=sum(Income_Data[1:A,7])
+PosttaxQ2=sum(Income_Data[(A+1):B,7])
+PosttaxQ3=sum(Income_Data[(B+1):C,7])
+PosttaxQ4=sum(Income_Data[(C+1):D,7])
+PosttaxQ5=sum(Income_Data[(D+1):length(income.vec),7])
 PosttaxTot=sum(Income_Data[,7])
 
-IncomeQ1=sum(Income_Data[1:length(income_1),1])
-IncomeQ2=sum(Income_Data[(length(income_1)+1):length(income_2),1])
-IncomeQ3=sum(Income_Data[(length(income_2)+1):length(income_3),1])
-IncomeQ4=sum(Income_Data[(length(income_3)+1):length(income_4),1])
-IncomeQ5=sum(Income_Data[(length(income_4)+1):length(income.vec),1])
+IncomeQ1=sum(Income_Data[1:A,1])
+IncomeQ2=sum(Income_Data[(A+1):B,1])
+IncomeQ3=sum(Income_Data[(B+1):C,1])
+IncomeQ4=sum(Income_Data[(C+1):D,1])
+IncomeQ5=sum(Income_Data[(D+1):length(income.vec),1])
 IncomeTot=sum(Income_Data[,1])
 
 # Compute tax amount
@@ -212,21 +217,21 @@ ginivalue<-c(round(ineq(income.vec, type="Gini"),6),round(ineq(Income_Data$Remai
 giniplot<-data.frame(giniid,ginivalue)
 giniplot<-melt(giniplot)
 p<-ggplot(giniplot,aes(x=reorder(giniid, ginivalue),y=ginivalue,fill=giniid))+
-  geom_bar(stat="identity",position="dodge",width = 0.5)+ylim(0, 0.5)
+  geom_bar(stat="identity",position="dodge",width = 0.5)+ylim(0, 0.4)
 p.labs <- p + labs(title = "Gini Changes", x = "Gini", y = "Gini Value") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Type")
 p.labs
 
 govexpendplot<-data.frame(IncomeQuintile,AmPretax,AmPosttax)
 govexpendplot<-melt(govexpendplot)
 c<-ggplot(govexpendplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
-  geom_bar(stat="identity",position="dodge")
+  geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
 c.labs <- c + labs(title = "Government Revenue", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("PreTax", "PostTax"))
 c.labs
 
 burdenplot<-data.frame(IncomeQuintile,AveragePretax,AveragePosttax)
 burdenplot<-melt(burdenplot)
 d<-ggplot(burdenplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
-  geom_bar(stat="identity",position="dodge")
+  geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
 d.labs <- d + labs(title = "Average Tax Burden", x = "Income Bracket", y = "Average Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("Pre-Tax-Burden", "Post-Tax-Burden"))
 d.labs
 

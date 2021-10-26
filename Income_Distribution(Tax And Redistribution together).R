@@ -198,44 +198,49 @@ Governmentspend_Post<-c(Government_Spending_Total,Government_Spending_Q1,Governm
 #calculate Government Revenue from Tax
 
 # Tax amount before policy
-PretaxQ1=sum(Income_Data_Total[1:length(income_1),8])
-PretaxQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),8])
-PretaxQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),8])
-PretaxQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),8])
-PretaxQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),8])
+A = length(income_1)
+B= length(income_1)+length(income_2)
+C=length(income_1)+length(income_2)+length(income_3)
+D=length(income_1)+length(income_2)+length(income_3)+length(income_4)
+
+PretaxQ1=sum(Income_Data_Total[1:A,8])
+PretaxQ2=sum(Income_Data_Total[(A+1):B,8])
+PretaxQ3=sum(Income_Data_Total[(B+1):C,8])
+PretaxQ4=sum(Income_Data_Total[(C+1):D,8])
+PretaxQ5=sum(Income_Data_Total[(D+1):length(income.vec),8])
 PretaxTot=sum(Income_Data_Total[,8])
 AmPretax<-c(PretaxTot,PretaxQ1,PretaxQ2,PretaxQ3,PretaxQ4,PretaxQ5)
 
 # Tax amount after policy
-PosttaxQ1=sum(Income_Data_Total[1:length(income_1),9])
-PosttaxQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),9])
-PosttaxQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),9])
-PosttaxQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),9])
-PosttaxQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),9])
+PosttaxQ1=sum(Income_Data_Total[1:A,9])
+PosttaxQ2=sum(Income_Data_Total[(A+1):B,9])
+PosttaxQ3=sum(Income_Data_Total[(B+1):C,9])
+PosttaxQ4=sum(Income_Data_Total[(C+1):D,9])
+PosttaxQ5=sum(Income_Data_Total[(D+1):length(income.vec),9])
 PosttaxTot=sum(Income_Data_Total[,9])
 AmPosttax<-c(PosttaxTot,PosttaxQ1,PosttaxQ2,PosttaxQ3,PosttaxQ4,PosttaxQ5)
 
 #If value is positive Tax revenue is more than Spending
-Net_Government_Expenditure_Pre<-AmPretax -Governmentspend_Pre
-Net_Government_Expenditure_Post<-AmPosttax -Governmentspend_Post
-Net_Government_Expenditure_Pre<-data.frame(Net_Government_Expenditure_Pre)
-Net_Government_Expenditure_Post<-data.frame(Net_Government_Expenditure_Post)
+Net_Government_Revenue_Pre<-AmPretax -Governmentspend_Pre
+Net_Government_Revenue_Post<-AmPosttax -Governmentspend_Post
+Net_Government_Revenue_Pre<-data.frame(Net_Government_Revenue_Pre)
+Net_Government_Revenue_Post<-data.frame(Net_Government_Revenue_Post)
 
 ###Part D
 # Get original income per quintile
-PreIncomeQ1=sum(Income_Data_Total[1:length(income_1),1])
-PreIncomeQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),1])
-PreIncomeQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),1])
-PreIncomeQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),1])
-PreIncomeQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),1])
+PreIncomeQ1=sum(Income_Data_Total[1:A,1])
+PreIncomeQ2=sum(Income_Data_Total[(A+1):B,1])
+PreIncomeQ3=sum(Income_Data_Total[(B+1):C,1])
+PreIncomeQ4=sum(Income_Data_Total[(C+1):D,1])
+PreIncomeQ5=sum(Income_Data_Total[(D+1):length(income.vec),1])
 PreIncomeTot=sum(Income_Data_Total[,1])
 
 # Get income per quintile after redistribution
-PostIncomeQ1=sum(Income_Data_Total[1:length(income_1),2])
-PostIncomeQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),2])
-PostIncomeQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),2])
-PostIncomeQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),2])
-PostIncomeQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),2])
+PostIncomeQ1=sum(Income_Data_Total[1:A,2])
+PostIncomeQ2=sum(Income_Data_Total[(A+1):B,2])
+PostIncomeQ3=sum(Income_Data_Total[(B+1):C,2])
+PostIncomeQ4=sum(Income_Data_Total[(C+1):D,2])
+PostIncomeQ5=sum(Income_Data_Total[(D+1):length(income.vec),2])
 PostIncomeTot=sum(Income_Data_Total[,2])
 
 # Calculate benefit of redistributive policy
@@ -278,8 +283,8 @@ colnames(Income_Data_Total) <- c("Income","New_Income_with_Red","APC_Value","Old
                                  "Remaining Income After Redistribution less tax")
 View(Income_Data_Total)
 
-Summary_statistics_Both<-data.frame(IncomeQuintile, Originalgini, Middlegini,Newgini,Governmentspend_Pre,Governmentspend_Post,AmPretax,AmPosttax,Net_Government_Expenditure_Pre,Net_Government_Expenditure_Post,Average_Benefit_of_Policy,Average_Burden_Of_Policy_Post_Red,Prepercent,Postpercent)
-colnames(Summary_statistics_Both) <- c("Income_Bracket","Old_Gini","Temp_Gini_Tax_Only","Post_Policy_Gini","Government_Expenditure_Pre","Government_Expenditure_Post","Government_Revenue_Pre","Government_Revenue_Post","Net_Government_Expenditure_Pre","Net_Government_Expenditure_Post",
+Summary_statistics_Both<-data.frame(IncomeQuintile, Originalgini, Middlegini,Newgini,Governmentspend_Pre,Governmentspend_Post,AmPretax,AmPosttax,Net_Government_Revenue_Pre,Net_Government_Revenue_Post,Average_Benefit_of_Policy,Average_Burden_Of_Policy_Post_Red,Prepercent,Postpercent)
+colnames(Summary_statistics_Both) <- c("Income_Bracket","Old_Gini","Temp_Gini_Tax_Only","Post_Policy_Gini","Government_Expenditure_Pre","Government_Expenditure_Post","Government_Revenue_Pre","Government_Revenue_Post","Net_Government_Revenue_Pre","Net_Government_Revenue_Post",
                                       "Average_Benefit_of_Policy","Average_Burden_Of_Policy_Post_Red","Proportion_above_Poverty_Line(Pre)",
                                       "Proportion_above_Poverty_Line(Post)")
 View(Summary_statistics_Both)
@@ -298,8 +303,22 @@ govexpendplot<-data.frame(IncomeQuintile,Governmentspend_Pre,AmPretax,Government
 govexpendplot<-melt(govexpendplot)
 c<-ggplot(govexpendplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
-c.labs <- c + labs(title = "Government Revenue & Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("PrePolicies_Revenue", "PostPolicies_Revenue","PrePolicies_Expenditure", "PostPolicies_Expenditure"))
+c.labs <- c + labs(title = "Government Revenue & Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("PrePolicies_Expenditure", "PrePolicies_Revenue","PostPolicies_Expenditure", "PostPolicies_Revenue"))
 c.labs
+
+govnetplot<-data.frame(IncomeQuintile,Net_Government_Expenditure_Pre,Net_Government_Expenditure_Post)
+govnetplot<-melt(govnetplot)
+d<-ggplot(govnetplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
+  geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
+d.labs <- d + labs(title = "Government Net Revenue & Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("PrePolicies_NetGov_Revenue", "PostPolicies_NetGov_Revenue"))
+d.labs
+
+govavgplot<-data.frame(IncomeQuintile,Average_Benefit_of_Policy,Average_Burden_Of_Policy_Post_Red)
+govavgplot<-melt(govavgplot)
+f<-ggplot(govavgplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
+  geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
+f.labs <- f + labs(title = "Average Benefit/Burden of Policies", x = "Income Bracket", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("Average Benefit of Policy", "Average Burden of Policy"))
+f.labs
 
 propid<-c("Old Proportion","New Proportion")
 propvalue<-c(Prespercent,Postspercent)

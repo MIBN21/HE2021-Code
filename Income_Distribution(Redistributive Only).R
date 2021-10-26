@@ -140,11 +140,16 @@ Governmentspend<-c(Government_Spending_Total,Government_Spending_Q1,Government_S
                    Government_Spending_Q3,Government_Spending_Q4,Government_Spending_Q5)
 
 #Part D
-IncomeQ1=sum(Income_Data_Total[1:length(income_1),1])
-IncomeQ2=sum(Income_Data_Total[(length(income_1)+1):length(income_2),1])
-IncomeQ3=sum(Income_Data_Total[(length(income_2)+1):length(income_3),1])
-IncomeQ4=sum(Income_Data_Total[(length(income_3)+1):length(income_4),1])
-IncomeQ5=sum(Income_Data_Total[(length(income_4)+1):length(income.vec),1])
+A = length(income_1)
+B= length(income_1)+length(income_2)
+C=length(income_1)+length(income_2)+length(income_3)
+D=length(income_1)+length(income_2)+length(income_3)+length(income_4)
+
+IncomeQ1=sum(Income_Data_Total[1:A,1])
+IncomeQ2=sum(Income_Data_Total[(A+1):B,1])
+IncomeQ3=sum(Income_Data_Total[(B+1):C,1])
+IncomeQ4=sum(Income_Data_Total[(C+1):D,1])
+IncomeQ5=sum(Income_Data_Total[(D+1):length(income.vec),1])
 IncomeTot=sum(Income_Data_Total[,1])
 
 BenefitQ1 = Government_Spending_Q1/IncomeQ1*100
@@ -179,22 +184,22 @@ giniid<-c("Old Gini","New Gini")
 ginivalue<-c(round(ineq(income.vec, type="Gini"),6),round(ineq(Income_Data_with_Redistributive$Income, type="Gini"),6))
 giniplot<-data.frame(giniid,ginivalue)
 giniplot<-melt(giniplot)
-p<-ggplot(giniplot,aes(x=reorder(giniid, ginivalue),y=ginivalue,fill=giniid))+
-  geom_bar(stat="identity",position="dodge",width = 0.5)+ylim(0, 0.5)
+p<-ggplot(giniplot,aes(x=reorder(giniid, -ginivalue),y=ginivalue,fill=giniid))+
+  geom_bar(stat="identity",position="dodge",width = 0.5)+ylim(0, 0.4)
 p.labs <- p + labs(title = "Gini Changes", x = "Gini", y = "Gini Value") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Type")
 p.labs
 
 govrevplot<-data.frame(IncomeQuintile,Governmentspend)
 govrevplot<-melt(govrevplot)
 c<-ggplot(govrevplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
-  geom_bar(stat="identity",position="dodge")
+  geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
 c.labs <- c + labs(title = "Government Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
 c.labs
 
 benefitplot<-data.frame(IncomeQuintile,Benefits)
 benefitplot<-melt(benefitplot)
 d<-ggplot(benefitplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
-  geom_bar(stat="identity",position="dodge")
+  geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
 d.labs <- d + labs(title = "Average Benefit of Policy", x = "Income Bracket", y = "Average Percentage (%)") + theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
 d.labs
 
@@ -204,5 +209,5 @@ propplot<-data.frame(propid,propvalue)
 propplot<-melt(propplot)
 e<-ggplot(propplot,aes(x=reorder(propid,propvalue),y=propvalue,fill=propid))+
   geom_bar(stat="identity",position="dodge",width = 0.5)
-e.labs <- e + labs(title = "Proportion of Population above Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))
+e.labs <- e + labs(title = "Proportion of Population above Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Type")
 e.labs
