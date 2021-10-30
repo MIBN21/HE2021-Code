@@ -152,6 +152,13 @@ IncomeQ4=sum(Income_Data_Total[(C+1):D,1])
 IncomeQ5=sum(Income_Data_Total[(D+1):length(income.vec),1])
 IncomeTot=sum(Income_Data_Total[,1])
 
+PostIncomeQ1=sum(Income_Data_Total[1:A,2])
+PostIncomeQ2=sum(Income_Data_Total[(A+1):B,2])
+PostIncomeQ3=sum(Income_Data_Total[(B+1):C,2])
+PostIncomeQ4=sum(Income_Data_Total[(C+1):D,2])
+PostIncomeQ5=sum(Income_Data_Total[(D+1):length(income.vec),2])
+PostIncomeTot=sum(Income_Data_Total[,2])
+
 BenefitQ1 = Government_Spending_Q1/IncomeQ1*100
 BenefitQ2 = Government_Spending_Q2/IncomeQ2*100
 BenefitQ3 = Government_Spending_Q3/IncomeQ3*100
@@ -159,6 +166,8 @@ BenefitQ4 = Government_Spending_Q4/IncomeQ4*100
 BenefitQ5 = Government_Spending_Q5/IncomeQ5*100
 BenefitTotal =Government_Spending_Total/IncomeTot*100
 
+Pre_Policy_Income<-c(IncomeTot,IncomeQ1,IncomeQ2,IncomeQ3,IncomeQ4,IncomeQ5)
+Post_Policy_Income<-c(PostIncomeTot,PostIncomeQ1,PostIncomeQ2,PostIncomeQ3,PostIncomeQ4,PostIncomeQ5)
 Benefits<-c(BenefitTotal,BenefitQ1,BenefitQ2,BenefitQ3,BenefitQ4,BenefitQ5)
 
 #Part E
@@ -173,8 +182,8 @@ Prepercent<-c(Prespercent,"-","-","-","-","-")
 Postpercent<-c(Postspercent,"-","-","-","-","-")
 IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 
-Summary_statistics_Red<-data.frame(IncomeQuintile, Originalgini, Newgini,Governmentspend,Benefits,Prepercent,Postpercent)
-colnames(Summary_statistics_Red) <- c("Income_Bracket","Old_Gini","Post_Policy_Gini","Government_Expenditure",
+Summary_statistics_Red<-data.frame(IncomeQuintile, Originalgini, Newgini,Governmentspend,Pre_Policy_Income,Post_Policy_Income,Benefits,Prepercent,Postpercent)
+colnames(Summary_statistics_Red) <- c("Income_Bracket","Old_Gini","Post_Policy_Gini","Government_Expenditure","Pre_Policy_Income","Post_Policy_Income",
                                       "Average_Benefit_of_Policy","Proportion_above_Poverty_Line(Pre)",
                                       "Proportion_above_Poverty_Line(Post)")
 View(Summary_statistics_Red)
@@ -195,6 +204,13 @@ c<-ggplot(govrevplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
 c.labs <- c + labs(title = "Government Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
 c.labs
+
+popincplot<-data.frame(IncomeQuintile,Pre_Policy_Income,Post_Policy_Income)
+popincplot<-melt(popincplot)
+g<-ggplot(popincplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
+  geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
+g.labs <- g + labs(title = "Income of Population", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5)) +scale_fill_discrete(name = "Legend", labels = c("PrePolicies_Income", "PostPolicies_Income"))
+g.labs
 
 benefitplot<-data.frame(IncomeQuintile,Benefits)
 benefitplot<-melt(benefitplot)
