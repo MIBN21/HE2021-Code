@@ -306,7 +306,7 @@ c<-ggplot(govexpendplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
 c.labs <- c + labs(title = "Government Revenue & Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("PrePolicies_Expenditure", "PrePolicies_Revenue","PostPolicies_Expenditure", "PostPolicies_Revenue"))
 c.labs
 
-govnetplot<-data.frame(IncomeQuintile,Net_Government_Expenditure_Pre,Net_Government_Expenditure_Post)
+govnetplot<-data.frame(IncomeQuintile,Net_Government_Revenue_Pre,Net_Government_Revenue_Post)
 govnetplot<-melt(govnetplot)
 d<-ggplot(govnetplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
