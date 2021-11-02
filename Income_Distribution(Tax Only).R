@@ -1,11 +1,14 @@
-#install.packages("ineq")
 #This uses data from Japan: 
 # Source: https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
+
 #install.packages("tidyverse")
 #install.packages("reshape2")
+#install.packages("ineq")
+
 library(ineq)
 library(ggplot2)
 library(reshape2)
+
 ###Data Inputs####
 # Find this data for your chosen country: 
 #Income thresholds from data (per annum per capita in yen)
@@ -64,30 +67,27 @@ Income_Data <- data.frame(Income_Data[order(Income_Data$Income),])
 #Sole_IncomeData=Income_Data
 #colnames(Sole_IncomeData) <- c("Income")
 
-##Average consumption expenditure of each quintile per capita (big assumptions made here)
+##Average consumption expenditure of each quintile per capita
 #https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
 Q1 = 137856*12/Averageearninhouse
-
 Q2 = 192473*12/Averageearninhouse
-
 Q3 = 237683*12/Averageearninhouse
-
 Q4 = 282792*12/Averageearninhouse
-
 Q5 = 381189*12/Averageearninhouse
 
-##Average APC of each quintile (big assumptions made here)
+##Average APC of each quintile
 ###PROB need to change because APC1 is suppose to be above 100%
 APC1 = (Q1/summary(income_1)[4])*100
 APC2 = (Q2/summary(income_2)[4])*100
 APC3 = (Q3/summary(income_3)[4])*100
 APC4 = (Q4/summary(income_4)[4])*100
 APC5 = (Q5/summary(income_5)[4])*100
+
 ## average apc documented is about 69.3
-#MeanAPC = (APC1+ APC2+APC3+ APC4 + APC5)/5
+#MeanAPC = (APC1+APC2+APC3+APC4+APC5)/5
 #print(MeanAPC)# (74.29 Very good considering there are assumptions in our data made)
 
-##Tax rate columns
+##Tax rate columns, before and after tax hike
 Old_Tax_Rate<-seq(from = 8.0, to = 8.0, length.out = 10000000)
 Old_Tax_Rate<-data.frame(Old_Tax_Rate)
 
@@ -112,28 +112,16 @@ Income_Data$PostTaxChange <- Income_Data$Consume * Income_Data$New_Tax/100
 Income_Data$RemainingInc1 <- Income_Data$Income - Income_Data$PreTaxChange
 Income_Data$RemainingInc2 <- Income_Data$Income - Income_Data$PostTaxChange
 
-# poverty_line_income <- 2000000
-# Income_Data$Income_With_Poverty_Line <- ifelse(Income_Data$RemainingInc >= poverty_line_income, "Above", "Below")
-
 colnames(Income_Data) <- c("Income","APC_Value","Old_Tax","New_Tax","Consumption_Expenditure",
                            "Consumption_Tax_Amount(Pre)","Consumption_Tax_Amount(Post)","Remaining_Balance_Before_TaxChange",
                            "Remaining_Balance_After_TaxChange")#,"Check_with_Poverty_Line")
 
 Income_Data_Tax=Income_Data
-
-# proportions <- table(Income_Data_Tax$Income_With_Poverty_Line)/length(Income_Data_Tax$Income_With_Poverty_Line)
-# percentages <- proportions*100
-
-# Income_Data_Tax %>%
-#   group_by(Income_With_Poverty_Line) %>%
-#   summarise(n = n()) %>%
-#   mutate(Freq = n/sum(n))
-
 View(Income_Data_Tax)
 
 # Tax amount before policy
-A = length(income_1)
-B= length(income_1)+length(income_2)
+A=length(income_1)
+B=length(income_1)+length(income_2)
 C=length(income_1)+length(income_2)+length(income_3)
 D=length(income_1)+length(income_2)+length(income_3)+length(income_4)
 
@@ -181,18 +169,24 @@ Changeinrev4=(PosttaxQ4-PretaxQ4)/PretaxQ4*100
 Changeinrev5=(PosttaxQ5-PretaxQ5)/PretaxQ5*100
 ChangeinrevTot=(AverageposttaxTot-AveragepretaxTot)/AveragepretaxTot*100
 
+# Create column to store the results for each quintile before and after tax
 IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 
+# Government revenue from tax
 AmPretax<-c(PretaxTot,PretaxQ1,PretaxQ2,PretaxQ3,PretaxQ4,PretaxQ5)
 AmPosttax<-c(PosttaxTot,PosttaxQ1,PosttaxQ2,PosttaxQ3,PosttaxQ4,PosttaxQ5)
+
+# Burden of tax
 AveragePretax<-c(AveragepretaxTot,AveragepretaxQ1,AveragepretaxQ2,AveragepretaxQ3,AveragepretaxQ4,AveragepretaxQ5)
 AveragePosttax<-c(AverageposttaxTot,AverageposttaxQ1, AverageposttaxQ2, AverageposttaxQ3,AverageposttaxQ4,AverageposttaxQ5)
+
+# Change in government revenue
 Changeinrev<-c(ChangeinrevTot,Changeinrev1,Changeinrev2,Changeinrev3,Changeinrev4,Changeinrev5)
 
+# Gini coefficient
 Originalgini<-c(round(ineq(income.vec, type="Gini"),6),"-","-","-","-","-")
 Newgini<-c(round(ineq(Income_Data$Remaining_Balance_After_TaxChange, type="Gini"),6),"-","-","-","-","-")
 
-# Part E
 ##Assume poverty line is 2000000 yen, source: https://www.economist.com/asia/2015/04/04/struggling 
 poverty_line_income = 2000000
 AboveLinePre<-Income_Data_Tax[!Income_Data_Tax$Remaining_Balance_Before_TaxChange <= poverty_line_income,]
@@ -203,7 +197,10 @@ Postspercent=100-((nrow(AboveLinePost)/length(Income_Data$Remaining_Balance_Afte
 Prepercent<-c(Prespercent,"-","-","-","-","-")
 Postpercent<-c(Postspercent,"-","-","-","-","-")
 
-Summary_statistics<-data.frame(IncomeQuintile, Originalgini, Newgini,AmPretax, AmPosttax, AveragePretax,AveragePosttax,Changeinrev,Prepercent,Postpercent)
+# Generate table of results for each quintile and the overall population
+Summary_statistics<-data.frame(IncomeQuintile, Originalgini, Newgini,AmPretax, AmPosttax,
+                               AveragePretax,AveragePosttax,Changeinrev,
+                               Prepercent,Postpercent)
 colnames(Summary_statistics) <- c("Income_Bracket","Old_Gini","Post_Tax_Gini","AmountCollected_PreTaxChange","AmountCollected_PostTaxChange", 
                                   "Burden_Of_Tax(Pre)%", "Burden_Of_Tax(Post)%","PercentageChange_TaxCollected(Pre vs Post)",
                                   "Proportion_Below_Poverty_Line(Pre)","Proportion_Below_Poverty_Line(Post)")
@@ -212,6 +209,8 @@ Summary_statistics_Tax=Summary_statistics
 View(Summary_statistics_Tax)
 
 ##Graphs
+
+# Plot Gini coefficient
 giniid<-c("Old Gini","New Gini")
 ginivalue<-c(round(ineq(income.vec, type="Gini"),6),round(ineq(Income_Data$Remaining_Balance_After_TaxChange, type="Gini"),6))
 giniplot<-data.frame(giniid,ginivalue)
@@ -221,6 +220,7 @@ p<-ggplot(giniplot,aes(x=reorder(giniid, ginivalue),y=ginivalue,fill=giniid))+
 p.labs <- p + labs(title = "Gini Changes", x = "Gini", y = "Gini Value") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Type")
 p.labs
 
+# Plot government revenue
 govexpendplot<-data.frame(IncomeQuintile,AmPretax,AmPosttax)
 govexpendplot<-melt(govexpendplot)
 c<-ggplot(govexpendplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
@@ -228,6 +228,7 @@ c<-ggplot(govexpendplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
 c.labs <- c + labs(title = "Government Revenue", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("PreTax", "PostTax"))
 c.labs
 
+# Plot average burden of tax
 burdenplot<-data.frame(IncomeQuintile,AveragePretax,AveragePosttax)
 burdenplot<-melt(burdenplot)
 d<-ggplot(burdenplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
@@ -235,6 +236,7 @@ d<-ggplot(burdenplot,aes(x=IncomeQuintile, y=value ,fill=variable))+
 d.labs <- d + labs(title = "Average Tax Burden", x = "Income Bracket", y = "Average Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("Pre-Tax-Burden", "Post-Tax-Burden"))
 d.labs
 
+# Plot proportion of popn below poverty line
 propid<-c("Old Proportion","New Proportion")
 propvalue<-c(Prespercent,Postspercent)
 propplot<-data.frame(propid,propvalue)

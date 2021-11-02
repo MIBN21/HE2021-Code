@@ -1,22 +1,23 @@
-#install.packages("ineq")
 #This uses data from Japan: 
 # Source: https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
+
+#install.packages("ineq")
 #install.packages("tidyverse")
 #install.packages("reshape2")
+
 library(ineq)
 library(ggplot2)
 library(reshape2)
+
 ###Data Inputs####
 # Find this data for your chosen country: 
 #Income thresholds from data (per annum per capita in yen)
 
 #Average income per household/average number of people in a household
-Averageearninhouse= (0.32+0.62+	1.04+	1.52	+1.88)/5
-
+Averageearninhouse= (0.32 + 0.62 + 1.04 + 1.52 + 1.88)/5
 
 #Average yearly income quintile per household/average number of people in a household
 #to obtain average yearly income quintile per capita.
-
 inc_1 <- 2320000/Averageearninhouse #Lowest Income Quintile
 inc_2 <- 3540000/Averageearninhouse #Second Quintile
 inc_3 <- 4990000/Averageearninhouse #Third quintile
@@ -56,6 +57,7 @@ Income_Data <- data.frame(income.vec)
 colnames(Income_Data) <- c("Income")
 Income_Data <- data.frame(Income_Data[order(Income_Data$Income),])
 
+# Filter population based on eligible income for the voucher
 Income_Data_recieved_voucher<-Income_Data[!Income_Data$Income>2560000,]+30000
 AmountofVouchers<-length(Income_Data_recieved_voucher)
 
@@ -65,6 +67,7 @@ Income_Data_DNrecieved_voucher <- data.frame(Income_Data_DNrecieved_voucher)
 colnames(Income_Data_recieved_voucher) <- c("Income")
 colnames(Income_Data_DNrecieved_voucher) <- c("Income")
 
+# Generate data frame of the population income with post policy income after distributing the vouchers
 Income_Data_with_Redistributive<-rbind(Income_Data_recieved_voucher,Income_Data_DNrecieved_voucher)
 Income_Data_with_Redistributive <- data.frame(Income_Data_with_Redistributive)
 colnames(Income_Data_with_Redistributive) <- c("Income")
@@ -76,57 +79,72 @@ Income_Data_Red=Income_Data_Total
 View(Income_Data_Red)
 
 ########################DO NOT TOUCH THE IF ELSE STATEMENT:THE INDENTATIONS ALL MATTER
-##Analysis (30000yen per year per capita)
+## Analysis (30000 yen per year per capita)
+# calculate Government Spending before and after redistributive policy
 Remaining_people<-AmountofVouchers
 Government_Spending_Total =Remaining_people*30000
 
+# Quintile 1
 if(Remaining_people>=length(income_1)){
   Government_Spending_Q1 = length(income_1)*30000
   Remaining_people=Remaining_people-length(income_1)
-} else if (Remaining_people>0){
   
+} else if (Remaining_people>0){
   Government_Spending_Q1 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q1 =0
 }
 
+# Quintile 2
 if(Remaining_people>=length(income_2)){
   Government_Spending_Q2 = length(income_2)*30000
   Remaining_people=Remaining_people-length(income_2)
+  
 }else if (Remaining_people>0){
   Government_Spending_Q2 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q2 =0
 }
 
+# Quintile 3
 if(Remaining_people>=length(income_3)){
   Government_Spending_Q3 = length(income_3)*30000
   Remaining_people=Remaining_people-length(income_3)
+  
 }else if (Remaining_people>0){
   Government_Spending_Q3 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q3 =0
 }
 
+# Quintile 4
 if(Remaining_people>=length(income_4)){
   Government_Spending_Q4 = length(income_4)*30000
   Remaining_people=Remaining_people-length(income_4)
+  
 }else if (Remaining_people>0){
   Government_Spending_Q4 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q4 =0
 }
 
+# Quintile 5
 if(Remaining_people>=length(income_5)){
   Government_Spending_Q5 = length(income_5)*30000
   Remaining_people=Remaining_people-length(income_5)
+  
 }else if (Remaining_people>0){
   Government_Spending_Q5 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q5 =0
 }
@@ -180,8 +198,11 @@ Postspercent=(nrow(AboveLinePost)/length(Income_Data_Total$Post_Policy_Income))*
 
 Prepercent<-c(Prespercent,"-","-","-","-","-")
 Postpercent<-c(Postspercent,"-","-","-","-","-")
+
+# Create column to store the results for each quintile before and after tax
 IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 
+# Generate table of results for each quintile and the overall population
 Summary_statistics_Red<-data.frame(IncomeQuintile, Originalgini, Newgini,Governmentspend,Pre_Policy_Income,Post_Policy_Income,Benefits,Prepercent,Postpercent)
 colnames(Summary_statistics_Red) <- c("Income_Bracket","Old_Gini","Post_Policy_Gini","Government_Expenditure","Pre_Policy_Income","Post_Policy_Income",
                                       "Average_Benefit_of_Policy","Proportion_above_Poverty_Line(Pre)",

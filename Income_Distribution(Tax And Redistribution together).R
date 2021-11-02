@@ -1,11 +1,14 @@
-#install.packages("ineq")
 #This uses data from Japan: 
 # Source: https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
+
+#install.packages("ineq")
 #install.packages("tidyverse")
 #install.packages("reshape2")
+
 library(ineq)
 library(ggplot2)
 library(reshape2)
+
 ###Data Inputs####
 # Find this data for your chosen country: 
 #Income thresholds from data (per annum per capita in yen)
@@ -14,15 +17,12 @@ library(reshape2)
 Averageearninhouse= (0.32+0.62+	1.04+	1.52	+1.88)/5
 
 
- #Average yearly income quintile per household/average number of people in a household
- #to obtain average yearly income quintile per capita.
-
- inc_1 <- 2320000/Averageearninhouse#Lowest Income Quintile
- inc_2 <- 3540000/Averageearninhouse#Second Quintile
- inc_3 <- 4990000/Averageearninhouse#Third quintile
- inc_4 <- 7380000/Averageearninhouse#Fourth Quintile
- 
- 
+#Average yearly income quintile per household/average number of people in a household
+#to obtain average yearly income quintile per capita.
+inc_1 <- 2320000/Averageearninhouse #Lowest Income Quintile
+inc_2 <- 3540000/Averageearninhouse #Second Quintile
+inc_3 <- 4990000/Averageearninhouse #Third quintile
+inc_4 <- 7380000/Averageearninhouse #Fourth Quintile
 #above is per person in household
 
 ave_income <- 2849000 # https://www.ceicdata.com/datapage/charts/ipc_japan_annual-household-income-per-capita/?type=area&from=2009-12-01&to=2020-12-01&lang=en
@@ -50,9 +50,10 @@ summary(income_2)
 summary(income_3)
 summary(income_4)
 summary(income_5)
+
 ###Your own analysis starts####
 
-##Average consumption expenditure of each quintile per capita (big assumptions made here)
+##Average consumption expenditure of each quintile per capita
 #https://www.stat.go.jp/english/data/sousetai/es18.html (Table 3)
 Q1 = 137856*12/Averageearninhouse
 Q2 = 192473*12/Averageearninhouse
@@ -60,13 +61,14 @@ Q3 = 237683*12/Averageearninhouse
 Q4 = 282792*12/Averageearninhouse
 Q5 = 381189*12/Averageearninhouse
 
-##Average APC of each quintile (big assumptions made here)
+##Average APC of each quintile
 ###PROB need to change because APC1 is suppose to be above 100%
 APC1 = (Q1/summary(income_1)[4])*100
 APC2 = (Q2/summary(income_2)[4])*100
 APC3 = (Q3/summary(income_3)[4])*100
 APC4 = (Q4/summary(income_4)[4])*100
 APC5 = (Q5/summary(income_5)[4])*100
+
 ## average apc documented is about 69.3
 #MeanAPC = (APC1+ APC2+APC3+ APC4 + APC5)/5
 #print(MeanAPC) (74.29 Very good considering there are assum,ptions in our data made)
@@ -75,6 +77,7 @@ Income_Data <- data.frame(income.vec)
 colnames(Income_Data) <- c("Income")
 Income_Data <- data.frame(Income_Data[order(Income_Data$Income),])
 
+# Filter population based on eligible income for the voucher
 Income_Data_recieved_voucher<-Income_Data[!Income_Data$Income>2560000,]+30000
 AmountofVouchers<-length(Income_Data_recieved_voucher)
 
@@ -84,6 +87,7 @@ Income_Data_DNrecieved_voucher <- data.frame(Income_Data_DNrecieved_voucher)
 colnames(Income_Data_recieved_voucher) <- c("Income")
 colnames(Income_Data_DNrecieved_voucher) <- c("Income")
 
+# Generate data frame of the population income with post policy income after distributing the vouchers
 Income_Data_with_Redistributive<-rbind(Income_Data_recieved_voucher,Income_Data_DNrecieved_voucher)
 Income_Data_with_Redistributive <- data.frame(Income_Data_with_Redistributive)
 colnames(Income_Data_with_Redistributive) <- c("Income")
@@ -116,7 +120,6 @@ Income_Data_Total$Post_Policy_Tax_Amount <- Income_Data_Total$Post_Consume_Expen
 Income_Data_Total$RemainingInc_Pre <- Income_Data_Total$Income - Income_Data_Total$Pre_Policy_Tax_Amount
 Income_Data_Total$RemainingInc_Post <- Income_Data_Total$New_Income_with_Red - Income_Data_Total$Post_Policy_Tax_Amount
 
-
 # Make duplicate of the data to calculate Gini in part A later
 dupli_income=Income_Data_Total
 dupli_income$justTax <- Income_Data_Total$Pre_Consume_Expenditure * Income_Data_Total$New_Tax/100
@@ -136,58 +139,72 @@ Newgini<-c(round(ineq(Income_Data_Total$RemainingInc_Post, type="Gini"),6),"-","
 ## Before policy
 Governmentspend_Pre = c(0,0,0,0,0,0)
 Governmentspend_Pre<-data.frame(Governmentspend_Pre)
-## After policy
 
+## After policy
 Remaining_people<-AmountofVouchers
 Government_Spending_Total = Remaining_people*30000
-# Q1
+
+# Quintile 1
 if(Remaining_people>=length(income_1)){
   Government_Spending_Q1 = length(income_1)*30000
   Remaining_people=Remaining_people-length(income_1)
-} else if (Remaining_people>0){
   
+} else if (Remaining_people>0){
   Government_Spending_Q1 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q1 =0
 }
-# Q2
+
+# Quintile 2
 if(Remaining_people>=length(income_2)){
   Government_Spending_Q2 = length(income_2)*30000
   Remaining_people=Remaining_people-length(income_2)
+  
 }else if (Remaining_people>0){
   Government_Spending_Q2 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q2 =0
 }
-# Q3
+
+# Quintile 3
 if(Remaining_people>=length(income_3)){
   Government_Spending_Q3 = length(income_3)*30000
   Remaining_people=Remaining_people-length(income_3)
+  
 }else if (Remaining_people>0){
   Government_Spending_Q3 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q3 =0
 }
-# Q4
+
+# Quintile 4
 if(Remaining_people>=length(income_4)){
   Government_Spending_Q4 = length(income_4)*30000
   Remaining_people=Remaining_people-length(income_4)
+  
 }else if (Remaining_people>0){
   Government_Spending_Q4 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q4 =0
 }
-# Q5
+
+# Quintile 5
 if(Remaining_people>=length(income_5)){
   Government_Spending_Q5 = length(income_5)*30000
   Remaining_people=Remaining_people-length(income_5)
+  
 }else if (Remaining_people>0){
   Government_Spending_Q5 = Remaining_people*30000
   Remaining_people=0
+  
 }else{
   Government_Spending_Q5 =0
 }
@@ -263,7 +280,6 @@ Average_Burden_Of_Policy_Post_Red<-c(Average_Burden_Of_PolicyTot,Average_Burden_
 
 ###Part E
 
-
 ##Proportion of population against poverty line
 poverty_line_income = 2000000
 AboveLinePre<-Income_Data_Total[!Income_Data_Total$RemainingInc_Pre <= poverty_line_income,]
@@ -274,8 +290,7 @@ Prepercent<-c(Prespercent,"-","-","-","-","-")
 Postpercent<-c(Postspercent,"-","-","-","-","-")
 IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 
-# Generate the structured data
-
+# Generate the structured data to output all results
 colnames(Income_Data_Total) <- c("Income","New_Income_with_Red","APC_Value","Old_Tax (%)" ,"New_Tax (%)",
                                  "Expenditure Before Redistribution","Expenditure After Redistribution",
                                  "Tax Before Redistribution","Tax After Redistribution",
