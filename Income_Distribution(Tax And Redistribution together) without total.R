@@ -293,7 +293,7 @@ Prepercent<-c(Prespercent,"-","-","-","-","-")
 Postpercent<-c(Postspercent,"-","-","-","-","-")
 IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 #duplicate for graph
-IncomeQuintilewt<-c("Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
+IncomeQuintilewt<-c("Q1","Q2","Q3","Q4","Q5")
 
 # Generate the structured data
 
@@ -311,7 +311,7 @@ colnames(Summary_statistics_Both) <- c("Income_Bracket","Old_Gini","Temp_Gini_Ta
 View(Summary_statistics_Both)
 
 ##Graphs
-giniid<-c("Pre Policies Gini","Just Tax Increase Gini","Post Policies Gini")
+giniid<-c("Pre Policies","Just Tax-Change","Post Policies")
 ginivalue<-c(round(ineq(income.vec, type="Gini"),6),round(ineq(dupli_income$justTaxRemain, type="Gini"),6),round(ineq(dupli_income$RemainingInc_Post, type="Gini"),6))
 giniplot<-data.frame(giniid,ginivalue)
 giniplot<-melt(giniplot)
@@ -324,21 +324,21 @@ govexpendplot<-data.frame(IncomeQuintilewt,Governmentspend_Prewt,AmPretaxwt,Gove
 govexpendplot<-melt(govexpendplot)
 c<-ggplot(govexpendplot,aes(x=IncomeQuintilewt, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5,position = position_dodge(0.7))
-c.labs <- c + labs(title = "Government Revenue & Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("PrePolicies_Expenditure", "PrePolicies_Revenue","PostPolicies_Expenditure", "PostPolicies_Revenue"))
+c.labs <- c + labs(title = "Government Revenue & Expenditure", x = "Income Quintile", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("PrePolicies_Expenditure", "PrePolicies_Revenue","PostPolicies_Expenditure", "PostPolicies_Revenue"))
 c.labs
 
 govnetplot<-data.frame(IncomeQuintilewt,Net_Government_Revenue_Prewt,Net_Government_Revenue_Postwt)
 govnetplot<-melt(govnetplot)
 d<-ggplot(govnetplot,aes(x=IncomeQuintilewt, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
-d.labs <- d + labs(title = "Government Net Revenue & Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("PrePolicies_NetGov_Revenue", "PostPolicies_NetGov_Revenue"))
+d.labs <- d + labs(title = "Government Net Revenue/Expenditure", x = "Income Quintile", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("PrePolicies_NetGov_Revenue", "PostPolicies_NetGov_Revenue"))
 d.labs
 
 govavgplot<-data.frame(IncomeQuintilewt,Average_Benefit_of_Policywt,Average_Burden_Of_Policy_Post_Redwt)
 govavgplot<-melt(govavgplot)
 f<-ggplot(govavgplot,aes(x=IncomeQuintilewt, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
-f.labs <- f + labs(title = "Average Benefit/Burden of Policies", x = "Income Bracket", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("Average Benefit of Policy", "Average Burden of Policy"))
+f.labs <- f + labs(title = "Average Benefit/Burden of Policies", x = "Income Quintile", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Legend", labels = c("Average Benefit", "Average Burden"))
 f.labs
 
 propid<-c("Old Proportion","New Proportion")
@@ -347,5 +347,5 @@ propplot<-data.frame(propid,propvalue)
 propplot<-melt(propplot)
 e<-ggplot(propplot,aes(x=reorder(propid,propvalue),y=propvalue,fill=propid))+
   geom_bar(stat="identity",position="dodge",width = 0.5)
-e.labs <- e + labs(title = "Proportion of Population above Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy",labels = c("PostPolicy", "PrePolicy")) +coord_cartesian(ylim = c(55, 60))
+e.labs <- e + labs(title = "Population above Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy",labels = c("PostPolicy", "PrePolicy")) +coord_cartesian(ylim = c(55, 60))
 e.labs

@@ -182,7 +182,7 @@ Changeinrev5=(PosttaxQ5-PretaxQ5)/PretaxQ5*100
 ChangeinrevTot=(AverageposttaxTot-AveragepretaxTot)/AveragepretaxTot*100
 
 #duplicate for graph
-IncomeQuintilewt<-c("Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
+IncomeQuintilewt<-c("Q1","Q2","Q3","Q4","Q5")
 IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 
 #duplicate for graph
@@ -234,14 +234,14 @@ govexpendplot<-data.frame(IncomeQuintilewt,AmPretaxwt,AmPosttaxwt)
 govexpendplot<-melt(govexpendplot)
 c<-ggplot(govexpendplot,aes(x=IncomeQuintilewt, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
-c.labs <- c + labs(title = "Government Revenue", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("PreTax", "PostTax"))
+c.labs <- c + labs(title = "Government Revenue", x = "Income Quintile", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("PreTax", "PostTax"))
 c.labs
 
 burdenplot<-data.frame(IncomeQuintilewt,AveragePretaxwt,AveragePosttaxwt)
 burdenplot<-melt(burdenplot)
 d<-ggplot(burdenplot,aes(x=IncomeQuintilewt, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
-d.labs <- d + labs(title = "Average Tax Burden", x = "Income Bracket", y = "Average Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("Pre-Tax-Burden", "Post-Tax-Burden"))
+d.labs <- d + labs(title = "Average Tax Burden", x = "Income Quintile", y = "Average Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy", labels = c("Pre-Tax-Burden", "Post-Tax-Burden"))
 d.labs
 
 propid<-c("Old Proportion","New Proportion")
@@ -250,5 +250,5 @@ propplot<-data.frame(propid,propvalue)
 propplot<-melt(propplot)
 e<-ggplot(propplot,aes(x=reorder(propid,propvalue),y=propvalue,fill=propid))+
   geom_bar(stat="identity",position="dodge",width = 0.5)
-e.labs <- e + labs(title = "Proportion of Population Below Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy",labels = c("PostTax", "PreTax")) +coord_cartesian(ylim = c(40, 45))
+e.labs <- e + labs(title = "Population Below Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Pre/Post Policy",labels = c("PostTax", "PreTax")) +coord_cartesian(ylim = c(40, 45))
 e.labs

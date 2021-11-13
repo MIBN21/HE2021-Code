@@ -188,7 +188,7 @@ Prepercent<-c(Prespercent,"-","-","-","-","-")
 Postpercent<-c(Postspercent,"-","-","-","-","-")
 IncomeQuintile<-c("Total","Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
 #duplicate for graph
-IncomeQuintilewt<-c("Income Quintile 1","Income Quintile 2","Income Quintile 3","Income Quintile 4","Income Quintile 5")
+IncomeQuintilewt<-c("Q1","Q2","Q3","Q4","Q5")
 
 Summary_statistics_Red<-data.frame(IncomeQuintile, Originalgini, Newgini,Governmentspend,Pre_Policy_Income,Post_Policy_Income,Benefits,Prepercent,Postpercent)
 colnames(Summary_statistics_Red) <- c("Income_Bracket","Old_Gini","Post_Policy_Gini","Government_Expenditure","Pre_Policy_Income","Post_Policy_Income",
@@ -210,21 +210,21 @@ govrevplot<-data.frame(IncomeQuintilewt,Governmentspendwt)
 govrevplot<-melt(govrevplot)
 c<-ggplot(govrevplot,aes(x=IncomeQuintilewt, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
-c.labs <- c + labs(title = "Government Expenditure", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
+c.labs <- c + labs(title = "Government Expenditure", x = "Income Quintile", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
 c.labs
 
 popincplot<-data.frame(IncomeQuintilewt,Pre_Policy_Incomewt,Post_Policy_Incomewt)
 popincplot<-melt(popincplot)
 g<-ggplot(popincplot,aes(x=IncomeQuintilewt, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
-g.labs <- g + labs(title = "Income of Population", x = "Income Bracket", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5)) +scale_fill_discrete(name = "Legend", labels = c("PrePolicies_Income", "PostPolicies_Income"))+coord_cartesian(ylim = c(2000000000000, 7500000000000))
+g.labs <- g + labs(title = "Income of Population", x = "Income Quintile", y = "Value in Yen") + theme(plot.title = element_text(hjust = 0.5)) +scale_fill_discrete(name = "Legend", labels = c("PrePolicies_Income", "PostPolicies_Income"))+coord_cartesian(ylim = c(2000000000000, 7500000000000))
 g.labs
 
 benefitplot<-data.frame(IncomeQuintilewt,Benefitswt)
 benefitplot<-melt(benefitplot)
 d<-ggplot(benefitplot,aes(x=IncomeQuintilewt, y=value ,fill=variable))+
   geom_bar(stat="identity",width = 0.5, position = position_dodge(0.7))
-d.labs <- d + labs(title = "Average Benefit of Policy", x = "Income Bracket", y = "Average Percentage (%)") + theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
+d.labs <- d + labs(title = "Average Benefit of Policy", x = "Income Quintile", y = "Average Percentage (%)") + theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
 d.labs
 
 propid<-c("Old Proportion","New Proportion")
@@ -233,5 +233,5 @@ propplot<-data.frame(propid,propvalue)
 propplot<-melt(propplot)
 e<-ggplot(propplot,aes(x=reorder(propid,propvalue),y=propvalue,fill=propid))+
   geom_bar(stat="identity",position="dodge",width = 0.5)
-e.labs <- e + labs(title = "Proportion of Population above Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Type")+coord_cartesian(ylim = c(60, 65))
+e.labs <- e + labs(title = "Population above Poverty Line", x = "Proportion", y = "Percentage (%)") + theme(plot.title = element_text(hjust = 0.5))+ scale_fill_discrete(name = "Type")+coord_cartesian(ylim = c(60, 65))
 e.labs
